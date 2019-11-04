@@ -672,6 +672,10 @@ class HMM(object):
         
         alphas, means, covs = _kmeans_init(X, K, L, dates = dates)
         
+        self.alpha = alphas
+        self.means = means
+        self.cov = covs
+        
         #checking sum of alphas on axis 1 KxL
         checkSum_one(self.alpha, axis = 1, name = "init_alphas")
         
@@ -680,7 +684,7 @@ class HMM(object):
               
     #EM UPDATE    
     def EM_iter(self, X, r_m, states = None,  pi = None, A = None,
-                alpha = None, means = None, cov = None):
+                alpha = None, means = None, cov = None, dates = None):
         """ 
         
         EM iteration updating all the 
@@ -727,7 +731,12 @@ class HMM(object):
             #print("iteration {} of internal EM for {} HMM".format(i, self.id))
             
             #get the ith observation
-            x_i = X[i]
+            if dates is None:
+                x_i = X[i]
+            else:
+                st = dates[i,0]
+                end = dates[i, 1]
+                x_i = X[i, st: end +1 ]
             
             #compute p_states, f start = time.time()
             log_p_states = self.log_predict_states_All(x_i)
@@ -969,12 +978,7 @@ class HMM(object):
             self.means[k, :, :] = ((self.means_Nom[k, :, :]).T \
                                                     /self.alpha_Nom[k,:]).T
             for l in np.arange( L ):
-#                mN = self.means_Nom[k,l,:]
-#                sN = self.cov_Nom[k,l,:]
-#                mn2 = mN**2
-#               w = self.alpha_Nom[k,l]
-#                w2 = w**2
-#                print( sN/w, mn2/w2)
+
                 self.cov_Nom[k, l, :, :] = self.cov_Nom[k, l, :, :] \
                                                     /self.alpha_Nom[k,l]
                                                     
@@ -1055,7 +1059,8 @@ class MHMM():
     """
     
     def __init__(self, n_HMMS = 2, n_states = 2, n_Comp = 2, EM_iter = 10,
-                 t_cov = 'diag', gmm_init = 'Kmeans', tol = 10**(-3)):
+                 t_cov = 'diag', gmm_init = 'Kmeans', tol = 10**(-3), 
+                 kmean_Points = 10**10):
         
         self.gmm_init = 'Kmeans'
         #setting number of states per HMM
@@ -1074,13 +1079,15 @@ class MHMM():
         self.mix = np.zeros( n_HMMS)
         #initialize HMM classes
         self.HMM_init = False
+        #points for kmeans initialization
+        self.kmean_Points = kmean_Points
         self.init_HMMs()
         #logLikelihood matrix for concergence
         self.logLikehood = np.zeros( self.Em_iter )
         self.initialized = False
         #tolerance in likelihood
         self._tol = tol
-        
+        #kmean points
         
         
         
@@ -1101,14 +1108,15 @@ class MHMM():
         
         for m in np.arange( M ):
             self.HMMS.append( HMM( states = states, g_components = n_Comp,
-                                  t_cov = t_cov, gmm_init = gmm_init, idi = m))
+                                  t_cov = t_cov, gmm_init = gmm_init, idi = m,
+                                  kmean_Points = self.kmean_Points) )
             
         self.HMM_init = True
             
         return self
     
     def EM_init(self, X, mix = None, pi = None, A = None,  alpha = None,
-                means = None, cov = None):
+                means = None, cov = None, dates = None):
         
         """
         Initialize the model for the EM algorithm
@@ -1135,7 +1143,7 @@ class MHMM():
         for m in np.arange( M ):
             
             self.HMMS[m].EM_init( X, pi = pi, A = A, alpha = alpha,
-                                             means = means, cov =cov)
+                                  means = means, cov =cov, dates = dates)
             
         #set the attribute that the modle was initialized    
         self.initialized = True
@@ -1145,13 +1153,15 @@ class MHMM():
     
     #BEGIN OF EM FIT
     def fit( self, data = None, mix = None, pi = None, A = None,  alpha = None,
-                means = None, cov = None, states = None):
+                means = None, cov = None, states = None, dates = None):
         
         """
         
         Fit the Mixture of HMMs with the EM algorithm
         
-        sup_states_ = NxT matrix containing the known states of each time series
+        states = NxT matrix containing the known states of each time series
+        dates: supports variable time lengths of observations
+        
         """
         
         
@@ -1166,11 +1176,11 @@ class MHMM():
         if not self.initialized:
             
             self.EM_init(data, mix = None, pi = None, A = None,  alpha = None,
-                means = None, cov = None)
+                means = None, cov = None, dates = dates)
         
         for iter1 in  np.arange( em_iter ):
             print("Iteration {} of EM".format( iter1 ))
-            self.EM_update( data, states = states  )
+            self.EM_update( data, states = states, dates = dates  )
             
             if self.convergenceMonitor(data, iter1) :
                 break
@@ -1179,7 +1189,7 @@ class MHMM():
         
         
     
-    def EM_update(self, X, states = None):
+    def EM_update(self, X, states = None, dates = None):
         """
         performs the EM update for the mixture of HMMs
         
@@ -1189,7 +1199,7 @@ class MHMM():
         
         #take the number of HMMs
         M = self.n_HMMS
-        R = self.log_posterior_All( X, states = states )
+        R = self.log_posterior_All( X, states = states, dates = dates)
         #print("Checking R")
         #update the mixing parameters
         self.update_mix(R)
@@ -1197,7 +1207,7 @@ class MHMM():
         for m in np.arange( M ):
             print("Training the {}th HMM".format(m))
             hmm_m = self.HMMS[m]
-            hmm_m.EM_iter(X, R[:, m], states = states )
+            hmm_m.EM_iter(X, R[:, m], states = states, dates = dates )
             
         return self
         
@@ -1219,7 +1229,7 @@ class MHMM():
         """
         predicts the probability of an observation given the model
         
-        p(x_i ; M) = Sum_{i = 1...M} p(x_i, H = m;M)
+        p(x_i ; Model) = Sum_{i = 1...M} p(x_i, H = m;M)
                    = Sum_{i=1...M} p(x_i|H=m;M)p(H = m)
                    
         x_i = (T,d)
@@ -1264,7 +1274,7 @@ class MHMM():
         return rx_i
             
         
-    def log_posterior_All(self, X, states = None):
+    def log_posterior_All(self, X, states = None, dates = None):
         """
         
         predicts the posterior probabilituy of being in an HMM
@@ -1288,8 +1298,15 @@ class MHMM():
                 si = None
             else:
                 si = states[i]
-                
-            R[i,:] = self.log_posterior_HMM(X[i], states = si)
+            
+            if dates is None:
+                R[i,:] = self.log_posterior_HMM(X[i], states = si)
+            
+            else:
+                st = dates[i,0]
+                end = dates[i,1]
+                R[i,:] = self.log_posterior_HMM(X[i, st:end + 1], states = si)
+
         
         return R
     

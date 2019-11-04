@@ -35,8 +35,10 @@ def _kmeans_init(X, K, L, dates = None):
     #get the corresponding datasets for kmeans for each mixture
     indexes = _hierarchical(X2d, K)
     
+    
     for k in range(K): #for each state compute means labels, alphas
         ind_k = indexes[k]
+       
         alphas[k], means[k], covs[k] = _compute_stats(X2d[ind_k], L)
         
     
@@ -49,7 +51,11 @@ def _compute_stats(X, L):
     """
     N = X.shape[0]
     D = X.shape[1]
-    indexes = _hierarchical(X, L)
+    
+    if L != 1:
+        indexes = _hierarchical(X, L)
+    else:
+        indexes = [np.arange(len(X))]
     
     means = np.zeros( shape = [L,D] )
     covs = np.zeros( shape = [L,D,D] )
@@ -57,9 +63,11 @@ def _compute_stats(X, L):
     
     for l in  range(L):
         ind_l = indexes[l]
-        means[l] = _compute_means(ind_l)
-        covs[l] = _compute_covs(ind_l)
+        means[l] = _compute_means(X[ind_l])
+        covs[l] = _compute_covs(X[ind_l])
         alphas[l] = len(ind_l)/N
+    
+    return alphas, means, covs
     
 def _hierarchical(X, k, random_state = 0):
     """
@@ -123,7 +131,16 @@ def _compute_covs( X ):
     """
     
     varX = np.var(X, axis = 0)
-    return np.diag(varX)
+    dim = varX.ndim
+    
+    if dim > 0:
+        diag = np.diag(varX)
+        
+    else:
+        diag = np.zeros(shape = [1,1])
+        diag[0] = varX
+    
+    return diag
      
      
      
