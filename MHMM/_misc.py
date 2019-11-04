@@ -4,9 +4,14 @@
 Created on Sun Aug  4 21:35:16 2019
 
 @author: george
+
+miscelleneous help functions for MHMM Project
+
+
 """
 
 import numpy as np
+from scipy.special import logsumexp
 
 
 
@@ -38,6 +43,8 @@ def compute_forw(hmm, data):
  
     computes the forward probabilities for all data
     
+    gets an hmm and the data
+    
     """
     
     N = data.shape[0]
@@ -52,4 +59,72 @@ def compute_forw(hmm, data):
         ones[i] = forw[1,:]
         
     return zers.reshape(N*T), ones.reshape(N*T)
+
+
+#########     check functions   #########
+def checkShape(  arg1, arg2, name):
+        
+    if arg1.shape != arg2.shape:
+        print( "Warning shapes does not match in " + name)
+        
+        
+    return
+
+def checkSum_one( matrix, axis, name):
+    """
+    Checks if the matrix entries along the given axis
+    sum to 1
+    """
+    
+    result = matrix.sum( axis = axis ).round(5)
+    value = np.all( result == 1 )
+    
+    
+    if not value:
+        print(" Warning: Elements do not sum to 1 in {} ".format(name))
+        
+    return
+
+def checkSum_zero( matrix, axis, name):
+    """
+    Checks if the matrix entries along the given axis
+    sum to 0
+    """
+    
+    result = logsumexp(matrix, axis = axis ).round(5)
+    value = np.all( result == 0 )
+    
+    
+    if not value:
+        print(" Warning: Elements do not sum to 0 in {} ".format(name))
+        
+    return
+
+
+def make_dataset(X, points):
+        """
+        helper function for the Kmeans Initialization
+        
+        returns a dataset with points number of observations from X
+        """
+        T = X[0].shape[0]
+        N = len( X )
+        d = X[0].shape[1] 
+        
+        #see how many points we need to concatenate together
+        indx_num = int( np.ceil( points/ T ) )
+        #choose random indexes
+        indx = np.random.choice( np.arange(N), size = indx_num, replace = False)
+        indx = indx.astype(int)
+        
+        #return the Kmeans dataset
+        X_kmeans = X[indx]
+        X_kmeans = np.reshape( X_kmeans, [-1, d])
+        
+        return X_kmeans
+
+
+
+
+
     

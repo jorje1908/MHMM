@@ -16,6 +16,18 @@ from scipy.special import logsumexp
 def _log_forward( log_A, log_p_states, log_init_states, log_forw, T, K,
                  states = None):
     
+    """
+    implements forward algorithm
+    log_A: log transition matrix
+    log_p_states: KxT matrix probability of each point in time
+                  given the state
+    log_init_states = initial state probability dist
+    
+    log_forw: matrix to get the results
+    T: #of time steps
+    K: #states
+    states: states labels if available
+    """
     
     for i in range(K):#initialize
         
@@ -36,6 +48,7 @@ def _log_forward( log_A, log_p_states, log_init_states, log_forw, T, K,
     ######
     
     work_buffer  = np.zeros(shape = [K])
+    
     for t in range(1,T):
         N = -np.inf
         for i in range(K):
