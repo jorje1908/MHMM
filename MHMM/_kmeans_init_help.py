@@ -94,23 +94,25 @@ def _make3d_2d(X, dates):
     """
     N = X.shape[0]
     D = X.shape[2]
-    Nnew = np.sum(dates[1] - dates[0] + 1)
+    Nnew = int(np.sum(dates[:,1] - dates[:,0] + 1))
     
     X2d = np.zeros( shape = [Nnew, D])
     c = 0
     for i in range(N):
         #start end dates
-        start = dates[i,0]
-        end = dates[i,1]
+        start = int(dates[i,0])
+        end = int(dates[i,1])
         
         #number of time points
         s = end - start + 1
+       # print("start:", start, " end:", end, " index",i)
+        #print(c, s,  X[i, start : end + 1].shape, X2d[ c : c+s].shape)
         
-        
-        X2d[ c : c + s, :] = X[i, start : end + 1, :]
+        X2d[ c : c+s] = X[i, start : end + 1]
     
         #increasing the counter
         c += s
+    
 
     return X2d
     
