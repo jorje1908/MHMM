@@ -16,13 +16,18 @@ import numpy as np
 
 def custom_kmeans( data =  None, labels = None, K = None, itera = 100, tol = 10**(-3)):
     
+    """
+    Kmeans for initialization of MHMM
+    it uses kmeans ++ for initialization
+    and it fixes the known means into super points
+    
+    """
+    
     #data dimension
     D = data.shape[1]
     
     #find unique labels
     unique = np.unique( labels )
-    
-   
     
 
     means = np.zeros( shape = [K,D] )
@@ -69,6 +74,12 @@ def custom_kmeans( data =  None, labels = None, K = None, itera = 100, tol = 10*
 
 def _init_steady_means(data, labels, unique, D):
     
+    """
+    based on the labels and the unique values 
+    initializes the fixed means to used in the lagorithm
+    
+    """
+    
     st_means = np.zeros( shape = [ len(unique)-1, D] )
     st_lengths = np.zeros(len(unique)-1)
     for i in range(1, len(unique)):
@@ -81,6 +92,9 @@ def _init_steady_means(data, labels, unique, D):
     
  
 def kmeanspp(data, means, steady_means):
+    """
+    kmeans plus plus initialization
+    """
     
     
     K  = len(means)
@@ -126,7 +140,7 @@ def kmeanspp(data, means, steady_means):
 def updates_means(X, means, st_means, st_lengths, Xsq, index_mat = None):
 
     """
-    
+    one iteration of kmeans
     updates means for kmeans algorithm
     
     """  
@@ -181,6 +195,7 @@ def _reformat_indexes(data, K, indexes, unique, means):
 
     """
     Reformating the indexes to be in the correct order
+    for the HMM initialization
     
     """
     

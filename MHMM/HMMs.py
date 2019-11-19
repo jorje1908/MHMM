@@ -1069,7 +1069,7 @@ class MHMM():
         
         if MHMM_object  is not None: #INITIALIZE FROM MHMM
             self.init_from_class(MHMM_object)
-            return self
+            return 
         
         #INITIALIZE FROM PARAMETERS
         self.gmm_init = 'Kmeans'
@@ -1093,13 +1093,13 @@ class MHMM():
         self.kmean_Points = kmean_Points
         self.init_HMMs()
         #logLikelihood matrix for concergence
-        self.logLikehood = np.zeros( self.Em_iter )
+        self.logLikelihood = np.zeros( self.Em_iter )
         self.initialized = False
         #tolerance in likelihood
         self._tol = tol
         #kmean points
         
-        return self
+        return 
         
         
         
@@ -1362,10 +1362,10 @@ class MHMM():
         i = iteration
         tol = self._tol
         for n in np.arange( N ):
-            self.logLikehood[i] +=  self.predict_log_proba( data[n] )
+            self.logLikelihood[i] +=  self.predict_log_proba( data[n] )
         
-        self.logLikehood[i]  = self.logLikehood[i]/N
-        lgi = self.logLikehood[i]
+        self.logLikelihood[i]  = self.logLikelihood[i]/N
+        lgi = self.logLikelihood[i]
         
         print("Iteration: {} LogLikelihood:{:.2}".format( i, lgi ))
         
@@ -1398,7 +1398,7 @@ class MHMM():
         #setting the covarinace type attribute
         self.t_cov = MHMM_obj.t_cov
         #settint the number of EMiterations attribute
-        self.Em_iter = MHMM_obj.EM_iter
+        self.Em_iter = MHMM_obj.Em_iter
         #initializing n_HMMs for our mixture
         self.HMMS = MHMM_obj.HMMS
         #mixing parameters of HMMs
@@ -1412,9 +1412,9 @@ class MHMM():
         self.logLikelihood = MHMM_obj.logLikelihood
         self.initialized = MHMM_obj.initialized
         #tolerance in likelihood
-        self._tol = MHMM_obj.tol
+        self._tol = MHMM_obj._tol
         #kmean points
-        return self
+        return 
    
     
     

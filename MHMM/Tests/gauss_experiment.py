@@ -9,7 +9,8 @@ gaussian experiment for HMMS
 
 """
 
-
+import sys
+sys.path.append('../')
 import  numpy as np
 from _experiments import gauss_seq1d
 from _misc import make_supervised, compute_forw, make_supervised2
@@ -23,7 +24,7 @@ a0 = [0.9, 0.1]
 a1 = [0.4, 0.6]
 
 m_0 = 0
-m_1 = 1
+m_1 = 4
 std_0 = 1
 std_1 = 1
 
@@ -42,15 +43,15 @@ dates[:,1] = np.random.choice( np.arange(8, 15), size = N)
 #TRAIN HMM
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 12
+EM_iter = 4
 
 #states1 = make_supervised(states.copy(), value = 0)
 states1 = make_supervised2(states.copy(), drop = 0)
 #statesinf = np.full( shape = [states1.shape[0], states1.shape[1]], fill_value = -np.inf )
 #statesinf[0, 10] = 1
 
-mhmm = MHMM(n_HMMS = n_HMMS, n_states = 2, n_Comp = n_Comp, EM_iter = EM_iter, tol = 10**(-8))
-mhmm = mhmm.fit( data = data, states = states1, dates = None)
+mhmm = MHMM(n_HMMS = n_HMMS, n_states = 2, n_Comp = n_Comp, EM_iter = EM_iter, tol = 10**(-5))
+mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = 'mymhmm.npy')
 
 #get the hmm
 hmm = mhmm.HMMS[0]
