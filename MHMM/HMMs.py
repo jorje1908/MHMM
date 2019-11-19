@@ -22,18 +22,18 @@ import numpy as np
 from numpy import logaddexp
 from scipy.special import logsumexp
 from scipy.stats import multivariate_normal
-from sklearn.cluster import KMeans
+
 #from MHMM import _hmmh
 import time
 import _utils
-from _misc import  checkSum_one, checkSum_zero, make_dataset
+from _misc import  checkSum_one, checkSum_zero
 from _kmeans_init_help import _kmeans_init
 
 
 
 
 class HMM(object):
-    """  one vopice of greece
+    """  
     HMM class 
     
     implements all the basic HMM algorithms
@@ -53,7 +53,7 @@ class HMM(object):
         
         pi --> initial state probabilities
         
-        cov --> covarinace matrices
+        cov --> covariance matrices
         
         means --> gaussian means
         
@@ -532,7 +532,8 @@ class HMM(object):
         
     #INITIALIZATIONS OF THE EM MODEL
     def EM_init(self, X, pi = None, A = None, alpha = None,
-                                    means = None, cov = None, dates = None):
+                                    means = None, cov = None, dates = None,
+                                    states = None):
         """
         Initialize the HMM parameters
         
@@ -543,7 +544,8 @@ class HMM(object):
         
         self.pi_init( pi )
         self.A_init( A )
-        self.alpha_means_cov_init(X, alpha, means, cov, dates = dates)
+        self.alpha_means_cov_init(X, alpha, means, cov, dates = dates,
+                                  states = states)
         self.gauss_init()
         self.initialized = True
         
@@ -595,12 +597,14 @@ class HMM(object):
         
         return self
             
-    def alpha_means_cov_init(self, X, alpha, means, cov, dates = None):
+    def alpha_means_cov_init(self, X, alpha, means, cov, dates = None,
+                             states = None):
         """
         used by EM_init
         method
         Initializes alphas means and covs either with 
         custom matrix or with kmeans
+        states = the states of the model
         
         X = (N, T, d)
         
@@ -619,7 +623,7 @@ class HMM(object):
         if (alpha is None) and (cov is None ) and ( means is None ):
             
             if init_type == "Kmeans":
-                self.kmeans_init( X, dates = dates )
+                self.kmeans_init( X, dates = dates, states = states )
         
         if (alpha is not None) and (means is not None) and ( cov is not None):
             self.alpha = alpha
@@ -652,7 +656,7 @@ class HMM(object):
         return self
             
         
-    def kmeans_init(self,  X, dates = None):
+    def kmeans_init(self,  X, dates = None, states = None):
         """
         it is used from 
         "alpha_means_cov_init "
@@ -670,7 +674,8 @@ class HMM(object):
         K = self.states_
         L = self.g_components_
         
-        alphas, means, covs = _kmeans_init(X, K, L, dates = dates)
+        alphas, means, covs = _kmeans_init(X, K, L, dates = dates,
+                                                               states = states)
         
         self.alpha = alphas
         self.means = means
@@ -714,7 +719,7 @@ class HMM(object):
                                                       format(self.id))
             
             self.EM_init(X, pi = pi, A = A, alpha = alpha, 
-                                 means = means, cov = cov)
+                                 means = means, cov = cov, states = states)
         
         K = self.states_
         L = self.g_components_
@@ -1060,8 +1065,13 @@ class MHMM():
     
     def __init__(self, n_HMMS = 2, n_states = 2, n_Comp = 2, EM_iter = 10,
                  t_cov = 'diag', gmm_init = 'Kmeans', tol = 10**(-3), 
-                 kmean_Points = 10**10):
+                 kmean_Points = 10**10, MHMM_object = None):
         
+        if MHMM_object  is not None: #INITIALIZE FROM MHMM
+            self.init_from_class(MHMM_object)
+            return self
+        
+        #INITIALIZE FROM PARAMETERS
         self.gmm_init = 'Kmeans'
         #setting number of states per HMM
         self.states = n_states
@@ -1089,6 +1099,8 @@ class MHMM():
         self._tol = tol
         #kmean points
         
+        return self
+        
         
         
     def init_HMMs( self ):
@@ -1099,6 +1111,9 @@ class MHMM():
         HMMS list attribute 
         
         """
+        
+        if self.init_HMMs == True:
+            return self
         
         M = self.n_HMMS
         states = self.states
@@ -1116,7 +1131,7 @@ class MHMM():
         return self
     
     def EM_init(self, X, mix = None, pi = None, A = None,  alpha = None,
-                means = None, cov = None, dates = None):
+                means = None, cov = None, dates = None, states = None):
         
         """
         Initialize the model for the EM algorithm
@@ -1133,6 +1148,10 @@ class MHMM():
         cov = [M,K,L,d,d] gaussian covariances matrices for the M HMMs
         
         """
+        
+        if self.initialized == True:
+            return self
+        
         M = self.n_HMMS
         
         if mix is None:
@@ -1143,7 +1162,8 @@ class MHMM():
         for m in np.arange( M ):
             
             self.HMMS[m].EM_init( X, pi = pi, A = A, alpha = alpha,
-                                  means = means, cov =cov, dates = dates)
+                                  means = means, cov =cov, dates = dates, 
+                                  states = states)
             
         #set the attribute that the modle was initialized    
         self.initialized = True
@@ -1153,7 +1173,8 @@ class MHMM():
     
     #BEGIN OF EM FIT
     def fit( self, data = None, mix = None, pi = None, A = None,  alpha = None,
-                means = None, cov = None, states = None, dates = None):
+                means = None, cov = None, states = None, dates = None, 
+                save_name = None):
         
         """
         
@@ -1175,12 +1196,15 @@ class MHMM():
         #initialize EM algorithm
         if not self.initialized:
             
-            self.EM_init(data, mix = None, pi = None, A = None,  alpha = None,
-                means = None, cov = None, dates = dates)
+            self.EM_init(data, mix = mix, pi = pi, A = A,  alpha = alpha,
+                means = means, cov = cov, dates = dates, states = states)
         
         for iter1 in  np.arange( em_iter ):
             print("Iteration {} of EM".format( iter1 ))
             self.EM_update( data, states = states, dates = dates  )
+            
+            if save_name is not None:
+                np.save(save_name, self)
             
             if self.convergenceMonitor(data, iter1) :
                 break
@@ -1207,7 +1231,7 @@ class MHMM():
         for m in np.arange( M ):
             print("Training the {}th HMM".format(m))
             hmm_m = self.HMMS[m]
-            hmm_m.EM_iter(X, R[:, m], states = states, dates = dates )
+            hmm_m.EM_iter( X, R[:, m], states = states, dates = dates )
             
         return self
         
@@ -1346,7 +1370,7 @@ class MHMM():
         print("Iteration: {} LogLikelihood:{:.2}".format( i, lgi ))
         
         if i > 0:
-            diff = np.abs( self.logLikehood[i] - self.logLikehood[i-1])
+            diff = np.abs( self.logLikelihood[i] - self.logLikelihood[i-1])
         else:
             diff = 1000
             
@@ -1355,8 +1379,42 @@ class MHMM():
             print("Convergence Criteria has been met")
             
         return break_condition
+    
+    
+    def init_from_class(self, MHMM_obj):
+        """
+        Initializes the MHMM from an MHMM
         
+        """
         
+         #INITIALIZE FROM PARAMETERS
+        self.gmm_init = MHMM_obj.gmm_init
+        #setting number of states per HMM
+        self.states = MHMM_obj.states
+        #setting the number of HMMS attribute
+        self.n_HMMS = MHMM_obj.n_HMMS
+        #setting the number of components of HMM attribute
+        self.n_Comp = MHMM_obj.n_Comp
+        #setting the covarinace type attribute
+        self.t_cov = MHMM_obj.t_cov
+        #settint the number of EMiterations attribute
+        self.Em_iter = MHMM_obj.EM_iter
+        #initializing n_HMMs for our mixture
+        self.HMMS = MHMM_obj.HMMS
+        #mixing parameters of HMMs
+        self.mix = MHMM_obj.mix
+        #initialize HMM classes
+        self.HMM_init = MHMM_obj.HMM_init
+        #points for kmeans initialization
+        self.kmean_Points = MHMM_obj.kmean_Points
+        self.init_HMMs()
+        #logLikelihood matrix for concergence
+        self.logLikelihood = MHMM_obj.logLikelihood
+        self.initialized = MHMM_obj.initialized
+        #tolerance in likelihood
+        self._tol = MHMM_obj.tol
+        #kmean points
+        return self
    
     
     

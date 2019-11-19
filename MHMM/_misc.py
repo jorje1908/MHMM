@@ -15,12 +15,14 @@ from scipy.special import logsumexp
 
 
 
-def make_supervised( states_matrix, value = 0):
+def make_supervised( states_matrix, value = 0, value2 = None, value3 = 2):
     """
     takes a matrix with values 
     (in general 0 or 1) and produces
     a matrix with 1 and -infinities
     replacing the value "value" with -inf
+    
+    value2 : what value to replace with value 3
     """
     
     dim0 = states_matrix.shape[0]
@@ -31,8 +33,41 @@ def make_supervised( states_matrix, value = 0):
         rowi = states_matrix[i,:]
         rowi[np.where(rowi == value)] = -np.Inf
         
+        if value2 is not None:
+            rowi[np.where(rowi == value2)] = value3
+            
+        
         new_mat[i,:] = rowi
         
+    
+    return new_mat
+
+
+def make_supervised2( states_matrix, drop = 0.7):
+    """
+    takes a matrix with values 
+    (in general 0 or 1) and produces
+    a matrix with 1 and -infinities
+    replacing the value "value" with -inf
+    
+    value2 : what value to replace with value 3
+    """
+    
+    perc = drop
+    
+    N, T = states_matrix.shape
+    
+    states_flat = states_matrix.reshape(N*T)
+    
+    #pick a random percentage of indexes to hide
+    indx = np.random.choice( np.arange(N*T), size = int(perc*N*T), 
+                            replace = False)
+    
+    
+    
+    states_flat[indx] = -np.inf
+    
+    new_mat = states_flat.reshape([N,T])
     
     return new_mat
         
