@@ -120,9 +120,9 @@ def _log_viterbi(log_A, log_p_states, log_init_states, log_vit, T, K):
             
 cpdef _log_backward(log_A, log_p_states, log_backw, int T, int K):
     
-    int i
-    int t
-    int j
+    cdef int i
+    cdef int t
+    cdef int j
     
     for i in range(K):
         log_backw[i,T-1] = 0
