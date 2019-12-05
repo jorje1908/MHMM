@@ -30,7 +30,7 @@ std_1 = 1
 
 A = np.array([a0, a1])
 T = 15
-N = 200
+N = 1000
 
 data, states = gauss_seq1d(T = T, N = N, A = A, m_0 = m_0, m_1 = m_1,
                            std_0 = std_0, std_1 = std_1)
@@ -43,7 +43,7 @@ dates[:,1] = np.random.choice( np.arange(8, 15), size = N)
 #TRAIN HMM
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 4
+EM_iter = 2
 
 #states1 = make_supervised(states.copy(), value = 0)
 states1 = make_supervised2(states.copy(), drop = 0)

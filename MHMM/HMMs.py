@@ -731,6 +731,8 @@ class HMM(object):
         self.initialize_EM_sums( K, L, d,  r_m )
         
         #r_m = np.log( r_m.copy())
+        start = time.time()
+
         for i in np.arange( len(X) ):
             
             #print("iteration {} of internal EM for {} HMM".format(i, self.id))
@@ -745,7 +747,6 @@ class HMM(object):
             
             #compute p_states, f start = time.time()
             log_p_states = self.log_predict_states_All(x_i)
-            start = time.time()
             
             #puting states in forward
             if states is not None:
@@ -756,8 +757,8 @@ class HMM(object):
             log_forw = self.log_forward(x_i, log_p_states = log_p_states, 
                                                                 states = si )
             log_backw = self.log_backward(x_i, log_p_states = log_p_states)
-            end = time.time() - start
-            self.timeIn_p_States += end
+           # end = time.time() - start
+           # self.timeIn_p_States += end
             
             #get the gammas for the i_th observation KXT
             log_gamma_i = self.log_gamas(x_i, log_forw = log_forw, 
@@ -785,9 +786,14 @@ class HMM(object):
             
             self.update_means_cov( x_i, membs_i)
         
+        
+        
         #set all the model parameteres
         self.set_EM_updates()
-        print("Time in Pstates: {}".format( self.timeIn_p_States))
+        
+        end = time.time() - start
+        #print("Time in Pstates: {}".format( self.timeIn_p_States))
+        print("Time for EM iter: {}".format( end ))
         
         return self
     
