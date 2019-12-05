@@ -8,8 +8,8 @@ Created on Sun Jul 28 00:23:45 2019
 
 from distutils.core import setup
 from Cython.Build import cythonize
-import numpy
+
 setup(
-    ext_modules = cythonize("_utils_cy.pyx"),
-    ]
+    ext_modules = cythonize("_utils_cy.pyx")
+    
 )
