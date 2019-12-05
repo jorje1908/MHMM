@@ -373,7 +373,7 @@ class HMM(object):
                       np.log(self.pi), log_backw,
                       T,  K)
         """
-        _utils._log_backward(log_A,  log_p_states,
+        _utils_cy._log_backward(log_A,  log_p_states,
                              log_backw,
                               T,  K)
         
@@ -408,7 +408,7 @@ class HMM(object):
         K = self.states_
         log_gamma = np.zeros( shape = [K,K])
         
-        log_gamma = _utils._log_gamas(log_forw, log_backw, log_gamma)
+        log_gamma = _utils_cy._log_gamas(log_forw, log_backw, log_gamma)
         
 
         
@@ -455,7 +455,7 @@ class HMM(object):
         _hmmh._xis_log(log_A, log_p_states, log_forw,
                        log_backw, log_xis, T,K)
         """
-        _utils._log_xis(log_A, log_p_states, log_forw,
+        _utils_cy._log_xis(log_A, log_p_states, log_forw,
                        log_backw, log_xis, T,K)
        
        
