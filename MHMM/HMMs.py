@@ -268,7 +268,7 @@ class HMM(object):
               np.log(self.pi),  log_forw,
               T,  K)
         """
-        _utils._log_forward( log_A,  log_p_states,
+        _utils_cy._log_forward( log_A,  log_p_states,
               np.log(self.pi),  log_forw,
               T,  K, states = states)
         

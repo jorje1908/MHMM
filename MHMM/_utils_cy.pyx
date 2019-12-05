@@ -13,12 +13,12 @@ from scipy.special import logsumexp
 
 
 
-cpdef double _log_forward(double[:,:] log_A, 
-                         double[:,:] log_p_states, 
-                         double[:] log_init_states, 
-                         double[:,:] log_forw, 
-                         int T, 
-                         int K,
+def  _log_forward( log_A, 
+                         log_p_states, 
+                          log_init_states, 
+                         log_forw, 
+                          T, 
+                          K,
                  states = None):
     
     """
@@ -33,10 +33,10 @@ cpdef double _log_forward(double[:,:] log_A,
     K: #states
     states: states labels if available
     """
-    cdef int i = 0
-    cdef int t = 0
-    cdef int j = 0
-    cdef double N0
+    cdef int i 
+    cdef int t 
+    cdef int j 
+    
     for i in range(K):#initialize
         
         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
