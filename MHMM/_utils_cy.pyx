@@ -13,9 +13,9 @@ from scipy.special import logsumexp
 
 
 
-cdef double _log_forward(double[:,:] log_A, 
+cpdef double _log_forward(double[:,:] log_A, 
                          double[:,:] log_p_states, 
-                         double[:,:] log_init_states, 
+                         double[:] log_init_states, 
                          double[:,:] log_forw, 
                          int T, 
                          int K,
@@ -33,9 +33,10 @@ cdef double _log_forward(double[:,:] log_A,
     K: #states
     states: states labels if available
     """
-    int i = 0
-    int t = 0
-    int j = 0
+    cdef int i = 0
+    cdef int t = 0
+    cdef int j = 0
+    cdef double N0
     for i in range(K):#initialize
         
         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
@@ -50,7 +51,8 @@ cdef double _log_forward(double[:,:] log_A,
             log_forw[s0, 0] = helpMat.copy()
     #added           
     N0 = logsumexp(log_forw[:,0])
-    log_forw[:,0] -=N0   
+   # log_forw[:,0] -=N0   
+    log_forw[:,0] = np.subtract(log_forw[:,0], N0)   
     Ntsum = N0
     ######
     
@@ -65,7 +67,7 @@ cdef double _log_forward(double[:,:] log_A,
             log_forw[i,t] = logsumexp(work_buffer) + log_p_states[i,t]
             N = logaddexp(log_forw[i,t], N)
         Ntsum = logaddexp(N, Ntsum)
-        log_forw[:,t] -= N
+        log_forw[:,t] = np.subtract(log_forw[:,t], N)   
         if states is not None:
             if not np.isinf( states[t]):
                 st = int(states[t])

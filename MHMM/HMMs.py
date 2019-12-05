@@ -26,6 +26,7 @@ from scipy.stats import multivariate_normal
 #from MHMM import _hmmh
 import time
 import _utils
+import _utils_cy
 from _misc import  checkSum_one, checkSum_zero
 from _kmeans_init_help import _kmeans_init
 
