@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 30 13:03:48 2019
+Created on Thu Dec  5 21:57:36 2019
 
 @author: george
 """
@@ -9,6 +9,7 @@ Created on Tue Jul 30 13:03:48 2019
 import numpy as np
 from numpy import logaddexp
 #from scipy.special import logsumexp
+
 
 def logsumexp(a, axis = 0):
     
@@ -20,7 +21,6 @@ def logsumexp(a, axis = 0):
    
     c += max_a 
     return c
-
 
 def _log_forward( log_A, log_p_states, log_init_states, log_forw, T, K,
                  states = None):
@@ -38,9 +38,9 @@ def _log_forward( log_A, log_p_states, log_init_states, log_forw, T, K,
     states: states labels if available
     """
     
-    for i in range(K):#initialize
+    
         
-        log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+    log_forw[:,0] = log_p_states[:,0] + log_init_states
         
         
     if states is not None:
@@ -50,24 +50,25 @@ def _log_forward( log_A, log_p_states, log_init_states, log_forw, T, K,
             helpMat = logsumexp(log_forw[:,0])
             log_forw[:,0] = -np.inf
             log_forw[s0, 0] = helpMat.copy()
+            
     #added           
     N0 = logsumexp(log_forw[:,0])
     log_forw[:,0] -=N0   
     Ntsum = N0
     ######
     
-    work_buffer  = np.zeros(shape = [K])
+    work_buffer  = np.zeros(shape = [K,K])
     
     for t in range(1,T):
         N = -np.inf
-        for i in range(K):
-            for j in range(K):
-                work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
+        
+        work_buffer = log_A + log_forw[:,t-1].reshape(-1,1)
             
-            log_forw[i,t] = logsumexp(work_buffer) + log_p_states[i,t]
-            N = logaddexp(log_forw[i,t], N)
+        log_forw[:,t] = logsumexp(work_buffer, axis = 0) + log_p_states[:,t]
+        N = logaddexp( logsumexp(log_forw[:,t]), N ) 
         Ntsum = logaddexp(N, Ntsum)
         log_forw[:,t] -= N
+        
         if states is not None:
             if not np.isinf( states[t]):
                 st = int(states[t])
@@ -119,18 +120,15 @@ def _log_viterbi(log_A, log_p_states, log_init_states, log_vit, T, K):
 def _log_backward(log_A, log_p_states, log_backw, T, K):
     
     
-    for i in range(K):
-        log_backw[i,T-1] = 0
+    
+    log_backw[:,T-1] = 0
         
     
-    work_buffer  = np.zeros(shape = [K])
+    work_buffer  = np.zeros(shape = [K,K])
     for t in range(T-2, -1, -1):
-        for i in range(K):
-            for j in range(K):
-                work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \
-                                                            log_p_states[j,t+1]
+        work_buffer = log_A + log_backw[:,t+1] + log_p_states[:,t+1]
             
-            log_backw[i,t] = logsumexp(work_buffer)  
+        log_backw[:,t] = logsumexp(work_buffer, axis = 1)  
             
             
 def _log_gamas(log_forw, log_backw, log_gammas):
@@ -145,19 +143,14 @@ def _log_gamas(log_forw, log_backw, log_gammas):
     
 def _log_xis(log_A, log_p_states, log_forw, log_backw, log_xis, T, K):
     
-
+    
     for t in range(T-1):
         logzero = -np.math.inf
-        for i in range(K):
-            for j in range(K):
-                log_xis[i,j,t] = log_forw[i, t] + log_backw[j, t+1]\
-                                  +log_A[i,j] + log_p_states[j,t+1] 
+        log_xis[:,:,t] = (log_A +log_forw[:, t].reshape(-1,1)) + (log_backw[:, t+1]
+                                   + log_p_states[:,t+1] )
                 
-                logzero = logaddexp(logzero, log_xis[i,j,t])
-                
-        for i in range(K):
-            for j in range(K):
-                log_xis[i,j,t] = log_xis[i,j,t] - logzero
+        logzero = logaddexp(logzero, logsumexp(log_xis[:,:,t]))
+        log_xis[:,:,t] = log_xis[:,:,t] - logzero
     
     
     

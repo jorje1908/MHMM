@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 
 np.random.seed( seed = 0)
 
+
 #GENERATE DATA
 a0 = [0.9, 0.1]
 a1 = [0.4, 0.6]
@@ -43,7 +44,7 @@ dates[:,1] = np.random.choice( np.arange(8, 15), size = N)
 #TRAIN HMM
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 2
+EM_iter = 3
 
 #states1 = make_supervised(states.copy(), value = 0)
 states1 = make_supervised2(states.copy(), drop = 0)

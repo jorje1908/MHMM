@@ -25,8 +25,9 @@ from scipy.stats import multivariate_normal
 
 #from MHMM import _hmmh
 import time
+#import _utils
+#import _utils__cy
 import _utils
-import _utils_cy
 from _misc import  checkSum_one, checkSum_zero
 from _kmeans_init_help import _kmeans_init
 
@@ -268,7 +269,7 @@ class HMM(object):
               np.log(self.pi),  log_forw,
               T,  K)
         """
-        _utils_cy._log_forward( log_A,  log_p_states,
+        _utils._log_forward( log_A,  log_p_states,
               np.log(self.pi),  log_forw,
               T,  K, states = states)
         
@@ -373,7 +374,7 @@ class HMM(object):
                       np.log(self.pi), log_backw,
                       T,  K)
         """
-        _utils_cy._log_backward(log_A,  log_p_states,
+        _utils._log_backward(log_A,  log_p_states,
                              log_backw,
                               T,  K)
         
@@ -408,7 +409,7 @@ class HMM(object):
         K = self.states_
         log_gamma = np.zeros( shape = [K,K])
         
-        log_gamma = _utils_cy._log_gamas(log_forw, log_backw, log_gamma)
+        log_gamma = _utils._log_gamas(log_forw, log_backw, log_gamma)
         
 
         
@@ -455,7 +456,7 @@ class HMM(object):
         _hmmh._xis_log(log_A, log_p_states, log_forw,
                        log_backw, log_xis, T,K)
         """
-        _utils_cy._log_xis(log_A, log_p_states, log_forw,
+        _utils._log_xis(log_A, log_p_states, log_forw,
                        log_backw, log_xis, T,K)
        
        
@@ -733,6 +734,7 @@ class HMM(object):
         
         #r_m = np.log( r_m.copy())
         start = time.time()
+        time_in = 0
 
         for i in np.arange( len(X) ):
             
@@ -754,7 +756,8 @@ class HMM(object):
                 si = states[i]
             else:
                 si = None
-                
+             
+            start_loop = time.time()    
             log_forw = self.log_forward(x_i, log_p_states = log_p_states, 
                                                                 states = si )
             log_backw = self.log_backward(x_i, log_p_states = log_p_states)
@@ -768,6 +771,10 @@ class HMM(object):
             #get xis for the i_th observation KXKX(T-1)
             log_xis_i = self.sliced(x_i, log_forw = log_forw,
                                     log_backw = log_backw, log_p_states = log_p_states)
+            
+            end_loop = time.time() - start_loop
+            time_in += end_loop
+            #print(" time in forw ", end_loop)
             
             #get the rm_i,  N 
             rm_i = r_m[i]
@@ -795,6 +802,8 @@ class HMM(object):
         end = time.time() - start
         #print("Time in Pstates: {}".format( self.timeIn_p_States))
         print("Time for EM iter: {}".format( end ))
+        print("Time for forw iter: {}".format( time_in /len(X)))
+
         
         return self
     
