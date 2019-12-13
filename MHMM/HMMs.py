@@ -25,9 +25,8 @@ from scipy.stats import multivariate_normal
 
 #from MHMM import _hmmh
 import time
-#import _utils
-#import _utils__cy
-import _utils
+
+import _utils_cy
 from _misc import  checkSum_one, checkSum_zero
 from _kmeans_init_help import _kmeans_init
 
@@ -269,14 +268,18 @@ class HMM(object):
               np.log(self.pi),  log_forw,
               T,  K)
         """
-        _utils._log_forward( log_A,  log_p_states,
+        flag = 1
+        if states is None:
+            flag = 0
+            
+        _utils_cy._log_forward( log_A,  log_p_states,
               np.log(self.pi),  log_forw,
-              T,  K, states = states)
+              T,  K, states, flag )
         
         if post:
-            posterior = _utils._log_forward( log_A,  log_p_states,
+            posterior = _utils_cy._log_forward( log_A,  log_p_states,
               np.log(self.pi),  log_forw,
-              T,  K, states = states)
+              T,  K, states, flag)
             
             return log_forw, posterior
         
@@ -311,7 +314,7 @@ class HMM(object):
               np.log(self.pi),  log_forw,
               T,  K)
         """
-        log_vit, states, seq = _utils._log_viterbi( log_A,  log_p_states,
+        log_vit, states, seq = _utils_cy._log_viterbi( log_A,  log_p_states,
               np.log(self.pi),  log_vit,
               T,  K)
         
@@ -374,7 +377,7 @@ class HMM(object):
                       np.log(self.pi), log_backw,
                       T,  K)
         """
-        _utils._log_backward(log_A,  log_p_states,
+        _utils_cy._log_backward(log_A,  log_p_states,
                              log_backw,
                               T,  K)
         
@@ -406,10 +409,10 @@ class HMM(object):
         if log_backw is None:
             log_backw = self.log_backward( X )
         
-        K = self.states_
-        log_gamma = np.zeros( shape = [K,K])
+        #K = self.states_
+       # log_gamma = np.zeros( shape = [K,K], dtype = np.double)
         
-        log_gamma = _utils._log_gamas(log_forw, log_backw, log_gamma)
+        log_gamma =_utils_cy._log_gamas(log_forw, log_backw)
         
 
         
@@ -456,7 +459,7 @@ class HMM(object):
         _hmmh._xis_log(log_A, log_p_states, log_forw,
                        log_backw, log_xis, T,K)
         """
-        _utils._log_xis(log_A, log_p_states, log_forw,
+        _utils_cy._log_xis(log_A, log_p_states, log_forw,
                        log_backw, log_xis, T,K)
        
        
@@ -735,6 +738,7 @@ class HMM(object):
         #r_m = np.log( r_m.copy())
         start = time.time()
         time_in = 0
+        time_forw = 0
 
         for i in np.arange( len(X) ):
             
@@ -758,8 +762,11 @@ class HMM(object):
                 si = None
              
             start_loop = time.time()    
+            start_forw = time.time()
             log_forw = self.log_forward(x_i, log_p_states = log_p_states, 
                                                                 states = si )
+            
+            time_forw += time.time() - start_forw
             log_backw = self.log_backward(x_i, log_p_states = log_p_states)
            # end = time.time() - start
            # self.timeIn_p_States += end
@@ -802,8 +809,9 @@ class HMM(object):
         end = time.time() - start
         #print("Time in Pstates: {}".format( self.timeIn_p_States))
         print("Time for EM iter: {}".format( end ))
-        print("Time for forw iter: {}".format( time_in /len(X)))
-
+        print("Time for forw-back iter: {}".format( time_in /len(X)))
+        print("Time for forw-back iter: {}".format( time_in ))
+        print("Time for forw iter: {}".format( time_forw ))
         
         return self
     
@@ -1214,7 +1222,7 @@ class MHMM():
             
             self.EM_init(data, mix = mix, pi = pi, A = A,  alpha = alpha,
                 means = means, cov = cov, dates = dates, states = states)
-        
+        sta = time.time()
         for iter1 in  np.arange( em_iter ):
             print("Iteration {} of EM".format( iter1 ))
             self.EM_update( data, states = states, dates = dates  )
@@ -1224,7 +1232,7 @@ class MHMM():
             
             if self.convergenceMonitor(data, iter1) :
                 break
-            
+        print("Took {}s to run MHMM".format(time.time()-sta))   
         return self
         
         

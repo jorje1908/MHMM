@@ -8,22 +8,22 @@ Created on Tue Jul 30 13:03:48 2019
 
 import numpy as np
 from numpy import logaddexp
-#from scipy.special import logsumexp
+from scipy.special import logsumexp
 
-def logsumexp(a, axis = 0):
-    
-    max_a = np.max(a, axis = axis)
-    exp_a = a - max_a
-    np.exp(exp_a, out=exp_a)
-    
-    c = np.log(np.sum(exp_a, axis = axis))
-   
-    c += max_a 
-    return c
+#def logsumexp(a, axis = 0):
+#    
+#    max_a = np.max(a, axis = axis)
+#    exp_a = a - max_a
+#    np.exp(exp_a, out=exp_a)
+#    
+#    c = np.log(np.sum(exp_a, axis = axis))
+#   
+#    c += max_a 
+#    return c
 
 
 def _log_forward( log_A, log_p_states, log_init_states, log_forw, T, K,
-                 states = None):
+                 states = None, flag = 0):
     
     """
     implements forward algorithm
@@ -133,7 +133,7 @@ def _log_backward(log_A, log_p_states, log_backw, T, K):
             log_backw[i,t] = logsumexp(work_buffer)  
             
             
-def _log_gamas(log_forw, log_backw, log_gammas):
+def _log_gamas(log_forw, log_backw):
     
     log_gammas = log_forw + log_backw
     

@@ -30,7 +30,7 @@ std_0 = 1
 std_1 = 1
 
 A = np.array([a0, a1])
-T = 15
+T = 20
 N = 1000
 
 data, states = gauss_seq1d(T = T, N = N, A = A, m_0 = m_0, m_1 = m_1,
@@ -44,7 +44,7 @@ dates[:,1] = np.random.choice( np.arange(8, 15), size = N)
 #TRAIN HMM
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 3
+EM_iter = 4
 
 #states1 = make_supervised(states.copy(), value = 0)
 states1 = make_supervised2(states.copy(), drop = 0)
@@ -56,13 +56,13 @@ mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = 'mymhm
 
 #get the hmm
 hmm = mhmm.HMMS[0]
-params = hmm.get_params()
+params2 = hmm.get_params()
 
 
-zers, ones = compute_forw(hmm, data)
-
-fig, ax = plt.subplots(1,3, figsize = (10,4))
-ax[0].hist(zers, bins = 30)
-ax[1].hist(ones, bins = 30)
-ax[2].hist(np.concatenate((ones, zers), axis = 0), bins = 30)
-ax[2].set_title('All states1')
+#zers, ones = compute_forw(hmm, data)
+#
+#fig, ax = plt.subplots(1,3, figsize = (10,4))
+#ax[0].hist(zers, bins = 30)
+#ax[1].hist(ones, bins = 30)
+#ax[2].hist(np.concatenate((ones, zers), axis = 0), bins = 30)
+#ax[2].set_title('All states1')
