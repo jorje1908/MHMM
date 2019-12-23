@@ -8,10 +8,12 @@ Created on Thu Dec  5 16:58:24 2019
 
 
 
-#
+# distutils: extra_compile_args = -fopenmp
+# distutils: extra_link_args = -fopenmp
 
 cimport cython
-from libc.math cimport log, exp, INFINITY, isinf, fabs, log1p
+from cython.parallel cimport prange
+from libc.math cimport log, exp, INFINITY, isinf, fabs, log1p, fmax
 import numpy as np
 from numpy import logaddexp
 from scipy.special import logsumexp
@@ -20,7 +22,9 @@ ctypedef  double dt
 
 #TAKEN FROM HMM LEARN PACKAGE
 #argmax function
-cdef inline int _argmax(dt[:] X):
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)   # Deactivate negative indexing.
+cdef inline int _argmax(dt[:] X) nogil:
     cdef dt X_max = -INFINITY
     cdef int pos = 0
     cdef int i
@@ -31,11 +35,15 @@ cdef inline int _argmax(dt[:] X):
     return pos
 
 #return max of an array
-cdef inline dt _max(dt[:] X) :
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)   # Deactivate negative indexing.
+cdef inline dt _max(dt[:] X) nogil:
     return X[_argmax(X)]
 
 #custom log sum exp
-cdef inline dt _logsumexp(dt[:] X) :
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)   # Deactivate negative indexing.
+cdef inline dt _logsumexp(dt[:] X) nogil:
     cdef dt X_max = _max(X)
     if isinf(X_max):
         return -INFINITY
@@ -47,13 +55,15 @@ cdef inline dt _logsumexp(dt[:] X) :
     return log(acc) + X_max
 
 #custom log add exp
-cdef inline dt _logaddexp(dt a, dt b) :
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)   # Deactivate negative indexing.
+cdef inline dt _logaddexp(dt a, dt b) nogil:
     if isinf(a) and a < 0:
         return b
     elif isinf(b) and b < 0:
         return a
     else:
-        return max(a, b) + log1p(exp(-fabs(a - b)))
+        return fmax(a, b) + log1p(exp(-fabs(a - b)))
     
 
 
@@ -80,51 +90,52 @@ cpdef dt _log_forward( dt[:,:] log_A, dt[:,:] log_p_states,  dt[:] log_init_stat
     cdef int t 
     cdef int j,h
     cdef int s0,st
-    cdef dt N0, Ntsum,N
+    cdef dt N0, Ntsum, N
     cdef dt[:] work_buffer = np.zeros(shape = [K])
+    cdef dt helpMat
     
-    for i in range(K):#initialize
+    for i in prange(K, nogil = True):#initialize
         
         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
         
-        
-    if flag == 1:
-        if not isinf(states[0]):
-            s0 = <int>(states[0])
-            
-            helpMat = _logsumexp(log_forw[:,0])
-            log_forw[:,0] = -INFINITY
-            log_forw[s0, 0] = helpMat
-    #added           
-    N0 = _logsumexp(log_forw[:,0])
-    for h in range(K):
-        log_forw[h,0] =log_forw[h,0] - N0   
-    #log_forw[:,0] = np.subtract(log_forw[:,0], N0)   
-    Ntsum = N0
-    ######
-    
-    
-    
-    for t in range(1,T):
-        N = -INFINITY
-        for i in range(K):
-            for j in range(K):
-                work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
-            
-            log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t]
-            N = _logaddexp(log_forw[i,t], N)
-            
-        Ntsum = logaddexp(N, Ntsum)
-        #log_forw[:,t] = np.subtract(log_forw[:,t], N)  
-        for h in range(K):
-            log_forw[h,t] = log_forw[h,t] - N
-            
+    with nogil:   
         if flag == 1:
-            if not isinf( states[t] ):
-                st = <int>(states[t])
-                helpMat = _logsumexp(log_forw[:,t])
-                log_forw[:,t] = -INFINITY
-                log_forw[st,t] = helpMat
+            if not isinf(states[0]):
+                s0 = <int>(states[0])
+                
+                helpMat = _logsumexp(log_forw[:,0])
+                log_forw[:,0] = -INFINITY
+                log_forw[s0, 0] = helpMat
+        #added           
+        N0 = _logsumexp(log_forw[:,0])
+        for h in prange(K):
+            log_forw[h,0] =log_forw[h,0] - N0   
+        #log_forw[:,0] = np.subtract(log_forw[:,0], N0)   
+        Ntsum = N0
+        ######
+        
+        
+        
+        for t in range(1,T):
+            N = -INFINITY
+            for i in range(K):
+                for j in prange(K):
+                    work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
+                
+                log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t]
+                N = _logaddexp(log_forw[i,t], N)
+                
+            Ntsum = _logaddexp(N, Ntsum)
+            #log_forw[:,t] = np.subtract(log_forw[:,t], N)  
+            for h in prange(K):
+                log_forw[h,t] = log_forw[h,t] - N
+                
+            if flag == 1:
+                if not isinf( states[t] ):
+                    st = <int>(states[t])
+                    helpMat = _logsumexp(log_forw[:,t])
+                    log_forw[:,t] = -INFINITY
+                    log_forw[st,t] = helpMat
         
     return Ntsum
                 
@@ -176,17 +187,18 @@ cpdef _log_backward(dt[:,:]log_A, dt[:,:] log_p_states, dt[:,:] log_backw, int T
     cdef int j
     cdef dt[:] work_buffer = np.zeros(shape = [K])
     
-    for i in range(K):
-        log_backw[i,T-1] = 0
-        
-    
-    for t in range(T-2, -1, -1):
-        for i in range(K):
-            for j in range(K):
-                work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \
-                                                            log_p_states[j,t+1]
+    with nogil:
+        for i in prange(K):
+            log_backw[i,T-1] = 0
             
-            log_backw[i,t] = _logsumexp(work_buffer)  
+        
+        for t in range(T-2, -1, -1):
+            for i in range(K):
+                for j in prange(K):
+                    work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \
+                                                        log_p_states[j,t+1]
+                
+                log_backw[i,t] = _logsumexp(work_buffer)  
             
             
 #def _log_gamas(log_forw, log_backw):
@@ -208,15 +220,15 @@ cpdef dt[:,:] _log_gamas(dt[:,:] log_forw, dt[:,:] log_backw):
     cdef dt[:,:] log_gammas = np.zeros( shape = [K,T] )
     cdef double normalize
     
-    
-    for i in range(T):
-        for k in range(K):
-            log_gammas[k,i] = log_forw[k,i] + log_backw[k,i]
-            
-    for i in range(T):
-        normalize = _logsumexp(log_gammas[:,i])
-        for k in range(K):
-            log_gammas[k,i] = log_gammas[k,i] - normalize
+    with nogil:
+        for i in prange(T):
+            for k in prange(K):
+                log_gammas[k,i] = log_forw[k,i] + log_backw[k,i]
+                
+        for i in range(T):
+            normalize = _logsumexp(log_gammas[:,i])
+            for k in prange(K):
+                log_gammas[k,i] = log_gammas[k,i] - normalize
             
     return log_gammas
     
@@ -230,15 +242,16 @@ def _log_xis(dt[:,:] log_A, dt[:,:] log_p_states, dt[:,:] log_forw,
     cdef int t,i,j
     cdef dt logzero
     
-    for t in range(T-1):
-        logzero = -INFINITY
-        for i in range(K):
-            for j in range(K):
-                log_xis[i,j,t] = log_forw[i, t] + log_backw[j, t+1]\
-                                  +log_A[i,j] + log_p_states[j,t+1] 
-                
-                logzero = _logaddexp(logzero, log_xis[i,j,t])
-                
-        for i in range(K):
-            for j in range(K):
-                log_xis[i,j,t] = log_xis[i,j,t] - logzero
+    with nogil:
+        for t in range(T-1):
+            logzero = -INFINITY
+            for i in range(K):
+                for j in range(K):
+                    log_xis[i,j,t] = log_forw[i, t] + log_backw[j, t+1]\
+                                      +log_A[i,j] + log_p_states[j,t+1] 
+                    
+                    logzero = _logaddexp(logzero, log_xis[i,j,t])
+                    
+            for i in prange(K):
+                for j in prange(K):
+                    log_xis[i,j,t] = log_xis[i,j,t] - logzero

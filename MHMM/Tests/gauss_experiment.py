@@ -25,16 +25,16 @@ a0 = [0.9, 0.1]
 a1 = [0.4, 0.6]
 
 m_0 = 0
-m_1 = 4
+m_1 = 2
 std_0 = 1
 std_1 = 1
 
 A = np.array([a0, a1])
-T = 20
-N = 1000
+T = 1000
+N = 100
 
 data, states = gauss_seq1d(T = T, N = N, A = A, m_0 = m_0, m_1 = m_1,
-                           std_0 = std_0, std_1 = std_1)
+                          std_0 = std_0, std_1 = std_1)
 
 
 dates =np.zeros( shape = [N, 2])
@@ -47,7 +47,8 @@ n_Comp = 1
 EM_iter = 4
 
 #states1 = make_supervised(states.copy(), value = 0)
-states1 = make_supervised2(states.copy(), drop = 0)
+states1 = make_supervised2(states.copy(), drop = 0.2)
+#states1 = None
 #statesinf = np.full( shape = [states1.shape[0], states1.shape[1]], fill_value = -np.inf )
 #statesinf[0, 10] = 1
 
@@ -56,8 +57,12 @@ mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = 'mymhm
 
 #get the hmm
 hmm = mhmm.HMMS[0]
-params2 = hmm.get_params()
+params6 = hmm.get_params()
 
+forw = np.exp(hmm.log_forward(data[0]))
+gam =  np.exp(hmm.log_gamas(data[0]))
+observ = np.exp(hmm.log_predict_states_All(data[0]))
+seq0,seq1,seq,seq2=  hmm.log_viterbi(data[0])
 
 #zers, ones = compute_forw(hmm, data)
 #
