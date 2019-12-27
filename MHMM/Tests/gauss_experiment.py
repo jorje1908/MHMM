@@ -48,7 +48,7 @@ EM_iter = 4
 
 #states1 = make_supervised(states.copy(), value = 0)
 states1 = make_supervised2(states.copy(), drop = 0.2)
-#states1 = None
+states1 = None
 #statesinf = np.full( shape = [states1.shape[0], states1.shape[1]], fill_value = -np.inf )
 #statesinf[0, 10] = 1
 
