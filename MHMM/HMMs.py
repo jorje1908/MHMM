@@ -258,7 +258,8 @@ class HMM(object):
          return pkl
      
     #forward algorithmm 
-    def log_forward(self, X, log_p_states = None, states =  None, post = False):
+    def log_forward(self, X, log_p_states = None, states =  None, post = False,
+                    label_mat = None):
         """
         Implements the forward Algorithm, 
         Returns tha matrix forw [ a_1,... a_T ]
@@ -270,7 +271,7 @@ class HMM(object):
 
         
         """
-       
+       # label_mat = None
         #get length of obseravtions in time
         T = X.shape[0]   
         
@@ -296,10 +297,17 @@ class HMM(object):
         flag = 1
         if states is None:
             flag = 0
-            
-        _utils_cy._log_forward( log_A,  log_p_states,
+        
+        if label_mat is None:
+            _utils_cy._log_forward( log_A,  log_p_states,
               np.log(self.pi),  log_forw,
               T,  K, states, flag )
+        else:
+           
+            _utils_cy._log_forward2( log_A, label_mat, log_p_states,
+              np.log(self.pi),  log_forw,
+              T,  K, states, flag )
+            
         
         if post:
             posterior = _utils_cy._log_forward( log_A,  log_p_states,
@@ -365,7 +373,8 @@ class HMM(object):
         
         return posterior #log_pX
     
-    def log_backward(self, X, log_p_states = None):
+    def log_backward(self, X, log_p_states = None, states = None,
+                     label_mat = None):
         """
         Implements the Backward algorithm
         Returns the matrix backw [b_1,..., b_T]
@@ -379,7 +388,7 @@ class HMM(object):
         backw = [K,T]
         
         """
-        
+        #label_mat = None
         #get length of obseravtions in time
         T = X.shape[0]   
         
@@ -402,8 +411,13 @@ class HMM(object):
                       np.log(self.pi), log_backw,
                       T,  K)
         """
-        _utils_cy._log_backward(log_A,  log_p_states,
+        if label_mat is None:
+            _utils_cy._log_backward(log_A,  log_p_states,
                              log_backw,
+                              T,  K)
+        else:
+            _utils_cy._log_backward2(log_A,  log_p_states,
+                             log_backw, states, label_mat,
                               T,  K)
         
         return log_backw
@@ -764,7 +778,8 @@ class HMM(object):
               
     #EM UPDATE    
     def EM_iter(self, X, r_m, states = None,  pi = None, A = None,
-                alpha = None, means = None, cov = None, dates = None):
+                alpha = None, means = None, cov = None, dates = None, 
+                states_off = 0,  label_mat = None):
         """ 
         
         EM iteration updating all the 
@@ -779,6 +794,7 @@ class HMM(object):
         sets the A,pi, alpha, means, cov
         and gauss: gaussian components objects (frozen)
         
+        states_off: deactivates states
         X: is a list of obseravtions O^(1)... O^(N)
         O^(i) = [o_1^(i),....o_T^(i)]
         
@@ -806,6 +822,9 @@ class HMM(object):
        
         self.initialize_EM_sums( K, L, d,  r_m )
         posterior = np.full(shape = len(X), fill_value = -np.inf)
+        
+        if states_off == 1:
+            states = None
         
         #r_m = np.log( r_m.copy())
         #start = time.time()
@@ -840,12 +859,15 @@ class HMM(object):
             #start_forw = time.time()
             log_forw, pst = self.log_forward(x_i, log_p_states = log_p_states, 
                                                                 states = si,
-                                                                post = True )
+                                                                post = True, 
+                                                                 label_mat =  label_mat)
             
             posterior[i] = pst
             
             #time_forw += time.time() - start_forw
-            log_backw = self.log_backward(x_i, log_p_states = log_p_states)
+            log_backw = self.log_backward(x_i, log_p_states = log_p_states,
+                                          states = si,
+                                          label_mat =  label_mat)
            
             
             #get the gammas for the i_th observation KXT
@@ -1202,6 +1224,8 @@ class MHMM():
         self._tol = tol
         #kmean points
         
+    
+        
         return 
         
         
@@ -1277,7 +1301,7 @@ class MHMM():
     #BEGIN OF EM FIT
     def fit( self, data = None, mix = None, pi = None, A = None,  alpha = None,
                 means = None, cov = None, states = None, dates = None, 
-                save_name = None):
+                save_name = None, states_off = 0, label_mat = None):
         
         """
         
@@ -1285,6 +1309,8 @@ class MHMM():
         
         states = NxT matrix containing the known states of each time series
         dates: supports variable time lengths of observations
+        states_off: initialize supervised train unsupervised
+        label_mat : new feature under research
         
         """
         
@@ -1300,7 +1326,7 @@ class MHMM():
         if not self.initialized:
             
             self.EM_init(data, mix = mix, pi = pi, A = A,  alpha = alpha,
-                means = means, cov = cov, dates = dates, states = states)
+                means = means, cov = cov, dates = dates, states = states )
         
         R = None
         sta = time.time()
@@ -1308,7 +1334,8 @@ class MHMM():
             print("Iteration {} of EM".format( iter1 ))
             sta0 = time.time()
             post_all, R = self.EM_update( data, states = states, dates = dates, 
-                                      R = R  )
+                                      R = R , states_off = states_off, 
+                                      label_mat = label_mat)
             
             if save_name is not None:
                 np.save(save_name, self)
@@ -1325,7 +1352,8 @@ class MHMM():
         
         
     
-    def EM_update(self, X, states = None, dates = None, R = None):
+    def EM_update(self, X, states = None, dates = None, R = None, 
+                  states_off = 0, label_mat = None):
         """
         performs the EM update for the mixture of HMMs
         
@@ -1347,7 +1375,8 @@ class MHMM():
            # print("Training the {}th HMM".format(m))
             hmm_m = self.HMMS[m]
             post_all[:,m]  = hmm_m.EM_iter( X, R[:, m], states = states,
-                    dates = dates )
+                    dates = dates, states_off = states_off, label_mat = 
+                    label_mat)
         
         mix = np.log(self.mix)
         R = post_all - logsumexp((post_all + mix), axis = 1)[:,None]

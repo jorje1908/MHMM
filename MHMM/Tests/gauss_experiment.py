@@ -13,7 +13,7 @@ import sys
 sys.path.append('../')
 import  numpy as np
 from _experiments import gauss_seq1d
-from _misc import make_supervised, compute_forw, make_supervised2
+from _misc import make_supervised, compute_forw, make_supervised2, make_supervised3
 from HMMs import MHMM
 import matplotlib.pyplot as plt
 
@@ -25,7 +25,7 @@ a0 = [0.9, 0.1]
 a1 = [0.4, 0.6]
 
 m_0 = 0
-m_1 = 2
+m_1 = 1
 std_0 = 1
 std_1 = 1
 
@@ -44,21 +44,24 @@ dates[:,1] = np.random.choice( np.arange(8, 15), size = N)
 #TRAIN HMM
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 4
+EM_iter = 80
 
-#states1 = make_supervised(states.copy(), value = 0)
-states1 = make_supervised2(states.copy(), drop = 0.2)
-states1 = None
+states1 = make_supervised(states.copy(), value = 0)
+#states1 = make_supervised2(states.copy(), drop = 0.8)
+#states1 = make_supervised3(states.copy(), drop = 0.8)
+
+#states1 = None
 #statesinf = np.full( shape = [states1.shape[0], states1.shape[1]], fill_value = -np.inf )
 #statesinf[0, 10] = 1
-
-mhmm = MHMM(n_HMMS = n_HMMS, n_states = 2, n_Comp = n_Comp, EM_iter = EM_iter, tol = 10**(-5))
-mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = 'mymhmm.npy')
+labels_mat = np.log( [[1,0,0], [0,0,1]] )
+mhmm = MHMM(n_HMMS = n_HMMS, n_states = 2, n_Comp = n_Comp, EM_iter = EM_iter, tol = 10**(-8))
+mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = 'mymhmm.npy', states_off = 0,
+                label_mat = labels_mat)
 
 #get the hmm
 hmm = mhmm.HMMS[0]
 params6 = hmm.get_params()
-
+cov = params6['cov'].reshape(-1,1)
 forw = np.exp(hmm.log_forward(data[0]))
 gam =  np.exp(hmm.log_gamas(data[0]))
 observ = np.exp(hmm.log_predict_states_All(data[0]))

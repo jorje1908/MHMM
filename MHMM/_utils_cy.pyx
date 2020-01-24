@@ -17,6 +17,7 @@ from libc.math cimport log, exp, INFINITY, isinf, fabs, log1p, fmax
 import numpy as np
 from numpy import logaddexp
 from scipy.special import logsumexp
+from libc.stdio cimport printf
 
 ctypedef  double dt
 
@@ -255,3 +256,120 @@ def _log_xis(dt[:,:] log_A, dt[:,:] log_p_states, dt[:,:] log_forw,
             for i in prange(K):
                 for j in prange(K):
                     log_xis[i,j,t] = log_xis[i,j,t] - logzero
+                    
+                    
+                    
+                    
+#ADDING PROBABILITIES IN THE LABELS                  
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)   # Deactivate negative indexing.
+cpdef dt _log_forward2( dt[:,:] log_A, dt[:,:] log_lab,
+                       dt[:,:] log_p_states,  dt[:] log_init_states, 
+                       dt[:,:] log_forw, int T, int K, dt[:] states, int flag):
+    
+    """
+    implements forward algorithm
+    log_A: log transition matrix
+    log_lab: labels conditional probabilities p(label = i | z = k)
+    log_p_states: KxT matrix probability of each point in time
+                  given the state
+    log_init_states = initial state probability dist
+    
+    log_forw: matrix to get the results
+    T: #of time steps
+    K: #states
+    states: states labels if available
+    """
+    cdef int i 
+    cdef int t 
+    cdef int j,h, ii
+    cdef int s0,st
+    cdef dt N0, Ntsum, N
+    cdef dt[:] work_buffer = np.zeros(shape = [K])
+    cdef dt helpMat
+    
+   
+    for i in prange(K, nogil = True):#initialize
+        
+        log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+        
+    with nogil:   
+        if flag == 1:
+            if not isinf(states[0]):
+                s0 = <int>(states[0])
+                
+                helpMat = _logsumexp(log_forw[:,0])
+                log_forw[:,0] = -INFINITY
+                log_forw[s0, 0] = helpMat
+        #added           
+        N0 = _logsumexp(log_forw[:,0])
+        for h in prange(K):
+            log_forw[h,0] =log_forw[h,0] - N0   
+        #log_forw[:,0] = np.subtract(log_forw[:,0], N0)   
+        Ntsum = N0
+        ######
+        
+        
+        
+        for t in range(1,T):
+            N = -INFINITY
+            if  isinf( states[t] ):
+                ii = 0
+            else:
+                ii = <int> (states[t]) + 1
+                
+            for i in range(K):
+                for j in prange(K):
+                    work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
+                
+                log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t] + log_lab[i, ii]
+                N = _logaddexp(log_forw[i,t], N)
+                
+            Ntsum = _logaddexp(N, Ntsum)
+            #log_forw[:,t] = np.subtract(log_forw[:,t], N)  
+            for h in prange(K):
+                log_forw[h,t] = log_forw[h,t] - N
+                
+            if flag == 1:
+                if not isinf( states[t] ):
+                    st = <int>(states[t])
+                    helpMat = _logsumexp(log_forw[:,t])
+                    log_forw[:,t] = -INFINITY
+                    log_forw[st,t] = helpMat
+                    
+    return Ntsum
+
+
+
+@cython.boundscheck(False)  # Deactivate bounds checking
+@cython.wraparound(False)   # Deactivate negative indexing.           
+cpdef _log_backward2(dt[:,:]log_A, dt[:,:] log_p_states, dt[:,:] log_backw, 
+                     dt[:] states, dt[:,:] log_lab,
+                                         int T, int K):
+    
+    cdef int i
+    cdef int t
+    cdef int j, ii
+    cdef dt[:] work_buffer = np.zeros(shape = [K])
+    
+    with nogil:
+        for i in prange(K):
+            log_backw[i,T-1] = 0
+            
+        
+        for t in range(T-2, -1, -1):
+            for i in range(K):
+                if  isinf( states[t] ):
+                    ii = 0
+                else:
+                    ii = <int>(states[t]) + 1
+                   
+                    
+                for j in prange(K):
+                    work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \
+                                                        log_p_states[j,t+1] + log_lab[j, ii]
+                
+                log_backw[i,t] = _logsumexp(work_buffer)  
+            
+
+

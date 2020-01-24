@@ -70,6 +70,27 @@ def make_supervised2( states_matrix, drop = 0.7):
     new_mat = states_flat.reshape([N,T])
     
     return new_mat
+
+def make_supervised3( states_matrix, drop = 0.8, drop_value = 1):
+    
+    N, T = states_matrix.shape
+    
+    st_flat = states_matrix.reshape(N*T)
+    
+    st_flat[ st_flat == 0] = -np.inf
+    
+    ind_val = np.where( st_flat == drop_value)[0]
+
+    indx_drop = np.random.choice( len(ind_val), size = int(len(ind_val)*0.8))
+
+    st_flat[indx_drop] = -np.inf
+    
+    print("Ones before: {} Ones after: {}".format(len(ind_val), len(np.where(st_flat == 1)[0])))
+    return st_flat.reshape([N,T])
+    
+
+
+    
         
     
 
