@@ -5793,18 +5793,16 @@ static PyObject *__pyx_pf_9_utils_cy_8_log_xis(CYTHON_UNUSED PyObject *__pyx_sel
  */
 
 static PyObject *__pyx_pw_9_utils_cy_11_log_forward2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice __pyx_v_log_A, __Pyx_memviewslice __pyx_v_log_lab, __Pyx_memviewslice __pyx_v_log_p_states, __Pyx_memviewslice __pyx_v_log_init_states, __Pyx_memviewslice __pyx_v_log_forw, int __pyx_v_T, int __pyx_v_K, __Pyx_memviewslice __pyx_v_states, int __pyx_v_flag, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice __pyx_v_log_A, __Pyx_memviewslice __pyx_v_log_lab, __Pyx_memviewslice __pyx_v_log_p_states, __Pyx_memviewslice __pyx_v_log_init_states, __Pyx_memviewslice __pyx_v_log_forw, int __pyx_v_T, int __pyx_v_K, __Pyx_memviewslice __pyx_v_states, CYTHON_UNUSED int __pyx_v_flag, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_i;
   int __pyx_v_t;
   int __pyx_v_j;
   int __pyx_v_h;
   int __pyx_v_ii;
-  int __pyx_v_s0;
   __pyx_t_9_utils_cy_dt __pyx_v_N0;
   __pyx_t_9_utils_cy_dt __pyx_v_Ntsum;
   __pyx_t_9_utils_cy_dt __pyx_v_N;
   __Pyx_memviewslice __pyx_v_work_buffer = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __pyx_t_9_utils_cy_dt __pyx_v_helpMat;
   __pyx_t_9_utils_cy_dt __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5812,32 +5810,32 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_t_6;
+  Py_ssize_t __pyx_t_6;
   int __pyx_t_7;
-  int __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  Py_ssize_t __pyx_t_11;
+  Py_ssize_t __pyx_t_8;
+  int __pyx_t_9;
+  int __pyx_t_10;
+  int __pyx_t_11;
   Py_ssize_t __pyx_t_12;
   Py_ssize_t __pyx_t_13;
-  int __pyx_t_14;
+  Py_ssize_t __pyx_t_14;
   Py_ssize_t __pyx_t_15;
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   Py_ssize_t __pyx_t_18;
-  __Pyx_memviewslice __pyx_t_19 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_19;
   Py_ssize_t __pyx_t_20;
   Py_ssize_t __pyx_t_21;
   Py_ssize_t __pyx_t_22;
   Py_ssize_t __pyx_t_23;
   Py_ssize_t __pyx_t_24;
-  Py_ssize_t __pyx_t_25;
+  int __pyx_t_25;
   int __pyx_t_26;
   int __pyx_t_27;
   int __pyx_t_28;
   int __pyx_t_29;
   int __pyx_t_30;
-  int __pyx_t_31;
+  Py_ssize_t __pyx_t_31;
   Py_ssize_t __pyx_t_32;
   Py_ssize_t __pyx_t_33;
   Py_ssize_t __pyx_t_34;
@@ -5854,7 +5852,6 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
   Py_ssize_t __pyx_t_45;
   Py_ssize_t __pyx_t_46;
   Py_ssize_t __pyx_t_47;
-  Py_ssize_t __pyx_t_48;
   __Pyx_RefNannySetupContext("_log_forward2", 0);
 
   /* "_utils_cy.pyx":288
@@ -5890,12 +5887,55 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "_utils_cy.pyx":292
+  /* "_utils_cy.pyx":291
+ *     cdef dt helpMat
  * 
+ *     if  isinf( states[0] ):             # <<<<<<<<<<<<<<
+ *             ii = 0
+ *     else:
+ */
+  __pyx_t_6 = 0;
+  __pyx_t_7 = (isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_6 * __pyx_v_states.strides[0]) )))) != 0);
+  if (__pyx_t_7) {
+
+    /* "_utils_cy.pyx":292
+ * 
+ *     if  isinf( states[0] ):
+ *             ii = 0             # <<<<<<<<<<<<<<
+ *     else:
+ *             ii = <int> (states[0]) + 1
+ */
+    __pyx_v_ii = 0;
+
+    /* "_utils_cy.pyx":291
+ *     cdef dt helpMat
+ * 
+ *     if  isinf( states[0] ):             # <<<<<<<<<<<<<<
+ *             ii = 0
+ *     else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "_utils_cy.pyx":294
+ *             ii = 0
+ *     else:
+ *             ii = <int> (states[0]) + 1             # <<<<<<<<<<<<<<
+ * 
+ *     for i in prange(K, nogil = True):#initialize
+ */
+  /*else*/ {
+    __pyx_t_8 = 0;
+    __pyx_v_ii = (((int)(*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_8 * __pyx_v_states.strides[0]) )))) + 1);
+  }
+  __pyx_L3:;
+
+  /* "_utils_cy.pyx":296
+ *             ii = <int> (states[0]) + 1
  * 
  *     for i in prange(K, nogil = True):#initialize             # <<<<<<<<<<<<<<
  * 
- *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+ *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i] + log_lab[i, ii]
  */
   {
       #ifdef WITH_THREAD
@@ -5904,7 +5944,7 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
       __Pyx_FastGIL_Remember();
       #endif
       /*try:*/ {
-        __pyx_t_6 = __pyx_v_K;
+        __pyx_t_9 = __pyx_v_K;
         if (1 == 0) abort();
         {
             #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
@@ -5913,33 +5953,35 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
                 #define likely(x)   (x)
                 #define unlikely(x) (x)
             #endif
-            __pyx_t_8 = (__pyx_t_6 - 0 + 1 - 1/abs(1)) / 1;
-            if (__pyx_t_8 > 0)
+            __pyx_t_11 = (__pyx_t_9 - 0 + 1 - 1/abs(1)) / 1;
+            if (__pyx_t_11 > 0)
             {
                 #ifdef _OPENMP
-                #pragma omp parallel private(__pyx_t_10, __pyx_t_11, __pyx_t_12, __pyx_t_13, __pyx_t_9)
+                #pragma omp parallel private(__pyx_t_12, __pyx_t_13, __pyx_t_14, __pyx_t_15, __pyx_t_16, __pyx_t_17, __pyx_t_18)
                 #endif /* _OPENMP */
                 {
                     #ifdef _OPENMP
                     #pragma omp for firstprivate(__pyx_v_i) lastprivate(__pyx_v_i)
                     #endif /* _OPENMP */
-                    for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_8; __pyx_t_7++){
+                    for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_11; __pyx_t_10++){
                         {
-                            __pyx_v_i = (int)(0 + 1 * __pyx_t_7);
+                            __pyx_v_i = (int)(0 + 1 * __pyx_t_10);
 
-                            /* "_utils_cy.pyx":294
+                            /* "_utils_cy.pyx":298
  *     for i in prange(K, nogil = True):#initialize
  * 
- *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]             # <<<<<<<<<<<<<<
+ *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i] + log_lab[i, ii]             # <<<<<<<<<<<<<<
  * 
  *     with nogil:
  */
-                            __pyx_t_9 = __pyx_v_i;
-                            __pyx_t_10 = 0;
-                            __pyx_t_11 = __pyx_v_i;
                             __pyx_t_12 = __pyx_v_i;
                             __pyx_t_13 = 0;
-                            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_12 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_13 * __pyx_v_log_forw.strides[1]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_p_states.data + __pyx_t_9 * __pyx_v_log_p_states.strides[0]) ) + __pyx_t_10 * __pyx_v_log_p_states.strides[1]) ))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_log_init_states.data + __pyx_t_11 * __pyx_v_log_init_states.strides[0]) ))));
+                            __pyx_t_14 = __pyx_v_i;
+                            __pyx_t_15 = __pyx_v_i;
+                            __pyx_t_16 = __pyx_v_ii;
+                            __pyx_t_17 = __pyx_v_i;
+                            __pyx_t_18 = 0;
+                            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_17 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_18 * __pyx_v_log_forw.strides[1]) )) = (((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_p_states.data + __pyx_t_12 * __pyx_v_log_p_states.strides[0]) ) + __pyx_t_13 * __pyx_v_log_p_states.strides[1]) ))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_log_init_states.data + __pyx_t_14 * __pyx_v_log_init_states.strides[0]) )))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_lab.data + __pyx_t_15 * __pyx_v_log_lab.strides[0]) ) + __pyx_t_16 * __pyx_v_log_lab.strides[1]) ))));
                         }
                     }
                 }
@@ -5953,12 +5995,12 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
         #endif
       }
 
-      /* "_utils_cy.pyx":292
- * 
+      /* "_utils_cy.pyx":296
+ *             ii = <int> (states[0]) + 1
  * 
  *     for i in prange(K, nogil = True):#initialize             # <<<<<<<<<<<<<<
  * 
- *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+ *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i] + log_lab[i, ii]
  */
       /*finally:*/ {
         /*normal exit:*/{
@@ -5966,18 +6008,18 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
-          goto __pyx_L5;
+          goto __pyx_L6;
         }
-        __pyx_L5:;
+        __pyx_L6:;
       }
   }
 
-  /* "_utils_cy.pyx":296
- *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+  /* "_utils_cy.pyx":300
+ *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i] + log_lab[i, ii]
  * 
  *     with nogil:             # <<<<<<<<<<<<<<
- *         if flag == 1:
- *             if not isinf(states[0]):
+ * #         if flag == 1:
+ * #             if not isinf(states[0]):
  */
   {
       #ifdef WITH_THREAD
@@ -5987,165 +6029,40 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
       #endif
       /*try:*/ {
 
-        /* "_utils_cy.pyx":297
- * 
- *     with nogil:
- *         if flag == 1:             # <<<<<<<<<<<<<<
- *             if not isinf(states[0]):
- *                 s0 = <int>(states[0])
- */
-        __pyx_t_14 = ((__pyx_v_flag == 1) != 0);
-        if (__pyx_t_14) {
-
-          /* "_utils_cy.pyx":298
- *     with nogil:
- *         if flag == 1:
- *             if not isinf(states[0]):             # <<<<<<<<<<<<<<
- *                 s0 = <int>(states[0])
- * 
- */
-          __pyx_t_15 = 0;
-          __pyx_t_14 = ((!(isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_15 * __pyx_v_states.strides[0]) )))) != 0)) != 0);
-          if (__pyx_t_14) {
-
-            /* "_utils_cy.pyx":299
- *         if flag == 1:
- *             if not isinf(states[0]):
- *                 s0 = <int>(states[0])             # <<<<<<<<<<<<<<
- * 
- *                 helpMat = _logsumexp(log_forw[:,0])
- */
-            __pyx_t_16 = 0;
-            __pyx_v_s0 = ((int)(*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_16 * __pyx_v_states.strides[0]) ))));
-
-            /* "_utils_cy.pyx":301
- *                 s0 = <int>(states[0])
- * 
- *                 helpMat = _logsumexp(log_forw[:,0])             # <<<<<<<<<<<<<<
- *                 log_forw[:,0] = -INFINITY
- *                 log_forw[s0, 0] = helpMat
- */
-            __pyx_t_5.data = __pyx_v_log_forw.data;
-            __pyx_t_5.memview = __pyx_v_log_forw.memview;
-            __PYX_INC_MEMVIEW(&__pyx_t_5, 0);
-            __pyx_t_5.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_5.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_5.suboffsets[0] = -1;
-
-{
-    Py_ssize_t __pyx_tmp_idx = 0;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) __PYX_ERR(0, 301, __pyx_L13_error)
-        __pyx_t_5.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-__pyx_v_helpMat = __pyx_f_9_utils_cy__logsumexp(__pyx_t_5);
-            __PYX_XDEC_MEMVIEW(&__pyx_t_5, 0);
-            __pyx_t_5.memview = NULL;
-            __pyx_t_5.data = NULL;
-
-            /* "_utils_cy.pyx":302
- * 
- *                 helpMat = _logsumexp(log_forw[:,0])
- *                 log_forw[:,0] = -INFINITY             # <<<<<<<<<<<<<<
- *                 log_forw[s0, 0] = helpMat
- *         #added
- */
-            __pyx_t_5.data = __pyx_v_log_forw.data;
-            __pyx_t_5.memview = __pyx_v_log_forw.memview;
-            __PYX_INC_MEMVIEW(&__pyx_t_5, 0);
-            __pyx_t_5.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_5.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_5.suboffsets[0] = -1;
-
-{
-    Py_ssize_t __pyx_tmp_idx = 0;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) __PYX_ERR(0, 302, __pyx_L13_error)
-        __pyx_t_5.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-{
-                __pyx_t_9_utils_cy_dt __pyx_temp_scalar = (-INFINITY);
-                {
-                    Py_ssize_t __pyx_temp_extent_0 = __pyx_t_5.shape[0];
-                    Py_ssize_t __pyx_temp_stride_0 = __pyx_t_5.strides[0];
-                    char *__pyx_temp_pointer_0;
-                    Py_ssize_t __pyx_temp_idx_0;
-                    __pyx_temp_pointer_0 = __pyx_t_5.data;
-                    for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                      *((__pyx_t_9_utils_cy_dt *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
-                      __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                    }
-                }
-            }
-            __PYX_XDEC_MEMVIEW(&__pyx_t_5, 0);
-            __pyx_t_5.memview = NULL;
-            __pyx_t_5.data = NULL;
-
-            /* "_utils_cy.pyx":303
- *                 helpMat = _logsumexp(log_forw[:,0])
- *                 log_forw[:,0] = -INFINITY
- *                 log_forw[s0, 0] = helpMat             # <<<<<<<<<<<<<<
- *         #added
- *         N0 = _logsumexp(log_forw[:,0])
- */
-            __pyx_t_17 = __pyx_v_s0;
-            __pyx_t_18 = 0;
-            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_17 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_18 * __pyx_v_log_forw.strides[1]) )) = __pyx_v_helpMat;
-
-            /* "_utils_cy.pyx":298
- *     with nogil:
- *         if flag == 1:
- *             if not isinf(states[0]):             # <<<<<<<<<<<<<<
- *                 s0 = <int>(states[0])
- * 
- */
-          }
-
-          /* "_utils_cy.pyx":297
- * 
- *     with nogil:
- *         if flag == 1:             # <<<<<<<<<<<<<<
- *             if not isinf(states[0]):
- *                 s0 = <int>(states[0])
- */
-        }
-
-        /* "_utils_cy.pyx":305
- *                 log_forw[s0, 0] = helpMat
+        /* "_utils_cy.pyx":309
+ * #                 log_forw[s0, 0] = helpMat
  *         #added
  *         N0 = _logsumexp(log_forw[:,0])             # <<<<<<<<<<<<<<
  *         for h in prange(K):
  *             log_forw[h,0] =log_forw[h,0] - N0
  */
-        __pyx_t_19.data = __pyx_v_log_forw.data;
-        __pyx_t_19.memview = __pyx_v_log_forw.memview;
-        __PYX_INC_MEMVIEW(&__pyx_t_19, 0);
-        __pyx_t_19.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_19.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_19.suboffsets[0] = -1;
+        __pyx_t_5.data = __pyx_v_log_forw.data;
+        __pyx_t_5.memview = __pyx_v_log_forw.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_5, 0);
+        __pyx_t_5.shape[0] = __pyx_v_log_forw.shape[0];
+__pyx_t_5.strides[0] = __pyx_v_log_forw.strides[0];
+    __pyx_t_5.suboffsets[0] = -1;
 
 {
     Py_ssize_t __pyx_tmp_idx = 0;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) __PYX_ERR(0, 305, __pyx_L13_error)
-        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        if ((0)) __PYX_ERR(0, 309, __pyx_L14_error)
+        __pyx_t_5.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
-        __PYX_XDEC_MEMVIEW(&__pyx_t_19, 0);
-        __pyx_t_19.memview = NULL;
-        __pyx_t_19.data = NULL;
+__pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_5);
+        __PYX_XDEC_MEMVIEW(&__pyx_t_5, 0);
+        __pyx_t_5.memview = NULL;
+        __pyx_t_5.data = NULL;
 
-        /* "_utils_cy.pyx":306
+        /* "_utils_cy.pyx":310
  *         #added
  *         N0 = _logsumexp(log_forw[:,0])
  *         for h in prange(K):             # <<<<<<<<<<<<<<
  *             log_forw[h,0] =log_forw[h,0] - N0
  *         #log_forw[:,0] = np.subtract(log_forw[:,0], N0)
  */
-        __pyx_t_8 = __pyx_v_K;
+        __pyx_t_11 = __pyx_v_K;
         if (1 == 0) abort();
         {
             #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
@@ -6154,32 +6071,32 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
                 #define likely(x)   (x)
                 #define unlikely(x) (x)
             #endif
-            __pyx_t_6 = (__pyx_t_8 - 0 + 1 - 1/abs(1)) / 1;
-            if (__pyx_t_6 > 0)
+            __pyx_t_9 = (__pyx_t_11 - 0 + 1 - 1/abs(1)) / 1;
+            if (__pyx_t_9 > 0)
             {
                 #ifdef _OPENMP
-                #pragma omp parallel private(__pyx_t_20, __pyx_t_21, __pyx_t_22, __pyx_t_23)
+                #pragma omp parallel private(__pyx_t_19, __pyx_t_20, __pyx_t_21, __pyx_t_22)
                 #endif /* _OPENMP */
                 {
                     #ifdef _OPENMP
                     #pragma omp for firstprivate(__pyx_v_h) lastprivate(__pyx_v_h)
                     #endif /* _OPENMP */
-                    for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7++){
+                    for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10++){
                         {
-                            __pyx_v_h = (int)(0 + 1 * __pyx_t_7);
+                            __pyx_v_h = (int)(0 + 1 * __pyx_t_10);
 
-                            /* "_utils_cy.pyx":307
+                            /* "_utils_cy.pyx":311
  *         N0 = _logsumexp(log_forw[:,0])
  *         for h in prange(K):
  *             log_forw[h,0] =log_forw[h,0] - N0             # <<<<<<<<<<<<<<
  *         #log_forw[:,0] = np.subtract(log_forw[:,0], N0)
  *         Ntsum = N0
  */
-                            __pyx_t_20 = __pyx_v_h;
-                            __pyx_t_21 = 0;
-                            __pyx_t_22 = __pyx_v_h;
-                            __pyx_t_23 = 0;
-                            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_22 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_23 * __pyx_v_log_forw.strides[1]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_20 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_21 * __pyx_v_log_forw.strides[1]) ))) - __pyx_v_N0);
+                            __pyx_t_19 = __pyx_v_h;
+                            __pyx_t_20 = 0;
+                            __pyx_t_21 = __pyx_v_h;
+                            __pyx_t_22 = 0;
+                            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_21 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_22 * __pyx_v_log_forw.strides[1]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_19 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_20 * __pyx_v_log_forw.strides[1]) ))) - __pyx_v_N0);
                         }
                     }
                 }
@@ -6192,7 +6109,7 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
             #define unlikely(x) __builtin_expect(!!(x), 0)
         #endif
 
-        /* "_utils_cy.pyx":309
+        /* "_utils_cy.pyx":313
  *             log_forw[h,0] =log_forw[h,0] - N0
  *         #log_forw[:,0] = np.subtract(log_forw[:,0], N0)
  *         Ntsum = N0             # <<<<<<<<<<<<<<
@@ -6201,19 +6118,19 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
  */
         __pyx_v_Ntsum = __pyx_v_N0;
 
-        /* "_utils_cy.pyx":314
+        /* "_utils_cy.pyx":318
  * 
  * 
  *         for t in range(1,T):             # <<<<<<<<<<<<<<
  *             N = -INFINITY
  *             if  isinf( states[t] ):
  */
-        __pyx_t_6 = __pyx_v_T;
-        __pyx_t_7 = __pyx_t_6;
-        for (__pyx_t_8 = 1; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
-          __pyx_v_t = __pyx_t_8;
+        __pyx_t_9 = __pyx_v_T;
+        __pyx_t_10 = __pyx_t_9;
+        for (__pyx_t_11 = 1; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+          __pyx_v_t = __pyx_t_11;
 
-          /* "_utils_cy.pyx":315
+          /* "_utils_cy.pyx":319
  * 
  *         for t in range(1,T):
  *             N = -INFINITY             # <<<<<<<<<<<<<<
@@ -6222,18 +6139,18 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
  */
           __pyx_v_N = (-INFINITY);
 
-          /* "_utils_cy.pyx":316
+          /* "_utils_cy.pyx":320
  *         for t in range(1,T):
  *             N = -INFINITY
  *             if  isinf( states[t] ):             # <<<<<<<<<<<<<<
  *                 ii = 0
  *             else:
  */
-          __pyx_t_24 = __pyx_v_t;
-          __pyx_t_14 = (isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_24 * __pyx_v_states.strides[0]) )))) != 0);
-          if (__pyx_t_14) {
+          __pyx_t_23 = __pyx_v_t;
+          __pyx_t_7 = (isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_23 * __pyx_v_states.strides[0]) )))) != 0);
+          if (__pyx_t_7) {
 
-            /* "_utils_cy.pyx":317
+            /* "_utils_cy.pyx":321
  *             N = -INFINITY
  *             if  isinf( states[t] ):
  *                 ii = 0             # <<<<<<<<<<<<<<
@@ -6242,17 +6159,17 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
  */
             __pyx_v_ii = 0;
 
-            /* "_utils_cy.pyx":316
+            /* "_utils_cy.pyx":320
  *         for t in range(1,T):
  *             N = -INFINITY
  *             if  isinf( states[t] ):             # <<<<<<<<<<<<<<
  *                 ii = 0
  *             else:
  */
-            goto __pyx_L25;
+            goto __pyx_L24;
           }
 
-          /* "_utils_cy.pyx":319
+          /* "_utils_cy.pyx":323
  *                 ii = 0
  *             else:
  *                 ii = <int> (states[t]) + 1             # <<<<<<<<<<<<<<
@@ -6260,31 +6177,31 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
  *             for i in range(K):
  */
           /*else*/ {
-            __pyx_t_25 = __pyx_v_t;
-            __pyx_v_ii = (((int)(*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_25 * __pyx_v_states.strides[0]) )))) + 1);
+            __pyx_t_24 = __pyx_v_t;
+            __pyx_v_ii = (((int)(*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_24 * __pyx_v_states.strides[0]) )))) + 1);
           }
-          __pyx_L25:;
+          __pyx_L24:;
 
-          /* "_utils_cy.pyx":321
+          /* "_utils_cy.pyx":325
  *                 ii = <int> (states[t]) + 1
  * 
  *             for i in range(K):             # <<<<<<<<<<<<<<
  *                 for j in prange(K):
  *                     work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
  */
-          __pyx_t_26 = __pyx_v_K;
-          __pyx_t_27 = __pyx_t_26;
-          for (__pyx_t_28 = 0; __pyx_t_28 < __pyx_t_27; __pyx_t_28+=1) {
-            __pyx_v_i = __pyx_t_28;
+          __pyx_t_25 = __pyx_v_K;
+          __pyx_t_26 = __pyx_t_25;
+          for (__pyx_t_27 = 0; __pyx_t_27 < __pyx_t_26; __pyx_t_27+=1) {
+            __pyx_v_i = __pyx_t_27;
 
-            /* "_utils_cy.pyx":322
+            /* "_utils_cy.pyx":326
  * 
  *             for i in range(K):
  *                 for j in prange(K):             # <<<<<<<<<<<<<<
  *                     work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
  * 
  */
-            __pyx_t_29 = __pyx_v_K;
+            __pyx_t_28 = __pyx_v_K;
             if (1 == 0) abort();
             {
                 #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
@@ -6293,33 +6210,33 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
                     #define likely(x)   (x)
                     #define unlikely(x) (x)
                 #endif
-                __pyx_t_31 = (__pyx_t_29 - 0 + 1 - 1/abs(1)) / 1;
-                if (__pyx_t_31 > 0)
+                __pyx_t_30 = (__pyx_t_28 - 0 + 1 - 1/abs(1)) / 1;
+                if (__pyx_t_30 > 0)
                 {
                     #ifdef _OPENMP
-                    #pragma omp parallel private(__pyx_t_32, __pyx_t_33, __pyx_t_34, __pyx_t_35, __pyx_t_36)
+                    #pragma omp parallel private(__pyx_t_31, __pyx_t_32, __pyx_t_33, __pyx_t_34, __pyx_t_35)
                     #endif /* _OPENMP */
                     {
                         #ifdef _OPENMP
                         #pragma omp for firstprivate(__pyx_v_j) lastprivate(__pyx_v_j)
                         #endif /* _OPENMP */
-                        for (__pyx_t_30 = 0; __pyx_t_30 < __pyx_t_31; __pyx_t_30++){
+                        for (__pyx_t_29 = 0; __pyx_t_29 < __pyx_t_30; __pyx_t_29++){
                             {
-                                __pyx_v_j = (int)(0 + 1 * __pyx_t_30);
+                                __pyx_v_j = (int)(0 + 1 * __pyx_t_29);
 
-                                /* "_utils_cy.pyx":323
+                                /* "_utils_cy.pyx":327
  *             for i in range(K):
  *                 for j in prange(K):
  *                     work_buffer[j] = log_A[j,i] + log_forw[j,t-1]             # <<<<<<<<<<<<<<
  * 
  *                 log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t] + log_lab[i, ii]
  */
-                                __pyx_t_32 = __pyx_v_j;
-                                __pyx_t_33 = __pyx_v_i;
-                                __pyx_t_34 = __pyx_v_j;
-                                __pyx_t_35 = (__pyx_v_t - 1);
-                                __pyx_t_36 = __pyx_v_j;
-                                *((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_work_buffer.data + __pyx_t_36 * __pyx_v_work_buffer.strides[0]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_A.data + __pyx_t_32 * __pyx_v_log_A.strides[0]) ) + __pyx_t_33 * __pyx_v_log_A.strides[1]) ))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_34 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_35 * __pyx_v_log_forw.strides[1]) ))));
+                                __pyx_t_31 = __pyx_v_j;
+                                __pyx_t_32 = __pyx_v_i;
+                                __pyx_t_33 = __pyx_v_j;
+                                __pyx_t_34 = (__pyx_v_t - 1);
+                                __pyx_t_35 = __pyx_v_j;
+                                *((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_work_buffer.data + __pyx_t_35 * __pyx_v_work_buffer.strides[0]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_A.data + __pyx_t_31 * __pyx_v_log_A.strides[0]) ) + __pyx_t_32 * __pyx_v_log_A.strides[1]) ))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_33 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_34 * __pyx_v_log_forw.strides[1]) ))));
                             }
                         }
                     }
@@ -6332,34 +6249,34 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
                 #define unlikely(x) __builtin_expect(!!(x), 0)
             #endif
 
-            /* "_utils_cy.pyx":325
+            /* "_utils_cy.pyx":329
  *                     work_buffer[j] = log_A[j,i] + log_forw[j,t-1]
  * 
  *                 log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t] + log_lab[i, ii]             # <<<<<<<<<<<<<<
  *                 N = _logaddexp(log_forw[i,t], N)
  * 
  */
-            __pyx_t_37 = __pyx_v_i;
-            __pyx_t_38 = __pyx_v_t;
-            __pyx_t_39 = __pyx_v_i;
-            __pyx_t_40 = __pyx_v_ii;
-            __pyx_t_41 = __pyx_v_i;
-            __pyx_t_42 = __pyx_v_t;
-            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_41 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_42 * __pyx_v_log_forw.strides[1]) )) = ((__pyx_f_9_utils_cy__logsumexp(__pyx_v_work_buffer) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_p_states.data + __pyx_t_37 * __pyx_v_log_p_states.strides[0]) ) + __pyx_t_38 * __pyx_v_log_p_states.strides[1]) )))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_lab.data + __pyx_t_39 * __pyx_v_log_lab.strides[0]) ) + __pyx_t_40 * __pyx_v_log_lab.strides[1]) ))));
+            __pyx_t_36 = __pyx_v_i;
+            __pyx_t_37 = __pyx_v_t;
+            __pyx_t_38 = __pyx_v_i;
+            __pyx_t_39 = __pyx_v_ii;
+            __pyx_t_40 = __pyx_v_i;
+            __pyx_t_41 = __pyx_v_t;
+            *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_40 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_41 * __pyx_v_log_forw.strides[1]) )) = ((__pyx_f_9_utils_cy__logsumexp(__pyx_v_work_buffer) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_p_states.data + __pyx_t_36 * __pyx_v_log_p_states.strides[0]) ) + __pyx_t_37 * __pyx_v_log_p_states.strides[1]) )))) + (*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_lab.data + __pyx_t_38 * __pyx_v_log_lab.strides[0]) ) + __pyx_t_39 * __pyx_v_log_lab.strides[1]) ))));
 
-            /* "_utils_cy.pyx":326
+            /* "_utils_cy.pyx":330
  * 
  *                 log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t] + log_lab[i, ii]
  *                 N = _logaddexp(log_forw[i,t], N)             # <<<<<<<<<<<<<<
  * 
  *             Ntsum = _logaddexp(N, Ntsum)
  */
-            __pyx_t_43 = __pyx_v_i;
-            __pyx_t_44 = __pyx_v_t;
-            __pyx_v_N = __pyx_f_9_utils_cy__logaddexp((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_43 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_44 * __pyx_v_log_forw.strides[1]) ))), __pyx_v_N);
+            __pyx_t_42 = __pyx_v_i;
+            __pyx_t_43 = __pyx_v_t;
+            __pyx_v_N = __pyx_f_9_utils_cy__logaddexp((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_42 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_43 * __pyx_v_log_forw.strides[1]) ))), __pyx_v_N);
           }
 
-          /* "_utils_cy.pyx":328
+          /* "_utils_cy.pyx":332
  *                 N = _logaddexp(log_forw[i,t], N)
  * 
  *             Ntsum = _logaddexp(N, Ntsum)             # <<<<<<<<<<<<<<
@@ -6368,14 +6285,14 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
  */
           __pyx_v_Ntsum = __pyx_f_9_utils_cy__logaddexp(__pyx_v_N, __pyx_v_Ntsum);
 
-          /* "_utils_cy.pyx":330
+          /* "_utils_cy.pyx":334
  *             Ntsum = _logaddexp(N, Ntsum)
  *             #log_forw[:,t] = np.subtract(log_forw[:,t], N)
  *             for h in prange(K):             # <<<<<<<<<<<<<<
  *                 log_forw[h,t] = log_forw[h,t] - N
  * 
  */
-          __pyx_t_26 = __pyx_v_K;
+          __pyx_t_25 = __pyx_v_K;
           if (1 == 0) abort();
           {
               #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
@@ -6384,32 +6301,32 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
                   #define likely(x)   (x)
                   #define unlikely(x) (x)
               #endif
-              __pyx_t_28 = (__pyx_t_26 - 0 + 1 - 1/abs(1)) / 1;
-              if (__pyx_t_28 > 0)
+              __pyx_t_27 = (__pyx_t_25 - 0 + 1 - 1/abs(1)) / 1;
+              if (__pyx_t_27 > 0)
               {
                   #ifdef _OPENMP
-                  #pragma omp parallel private(__pyx_t_45, __pyx_t_46, __pyx_t_47, __pyx_t_48)
+                  #pragma omp parallel private(__pyx_t_44, __pyx_t_45, __pyx_t_46, __pyx_t_47)
                   #endif /* _OPENMP */
                   {
                       #ifdef _OPENMP
                       #pragma omp for firstprivate(__pyx_v_h) lastprivate(__pyx_v_h)
                       #endif /* _OPENMP */
-                      for (__pyx_t_27 = 0; __pyx_t_27 < __pyx_t_28; __pyx_t_27++){
+                      for (__pyx_t_26 = 0; __pyx_t_26 < __pyx_t_27; __pyx_t_26++){
                           {
-                              __pyx_v_h = (int)(0 + 1 * __pyx_t_27);
+                              __pyx_v_h = (int)(0 + 1 * __pyx_t_26);
 
-                              /* "_utils_cy.pyx":331
+                              /* "_utils_cy.pyx":335
  *             #log_forw[:,t] = np.subtract(log_forw[:,t], N)
  *             for h in prange(K):
  *                 log_forw[h,t] = log_forw[h,t] - N             # <<<<<<<<<<<<<<
  * 
- * #            if flag == 1:
+ * #             if flag == 1:
  */
-                              __pyx_t_45 = __pyx_v_h;
-                              __pyx_t_46 = __pyx_v_t;
-                              __pyx_t_47 = __pyx_v_h;
-                              __pyx_t_48 = __pyx_v_t;
-                              *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_47 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_48 * __pyx_v_log_forw.strides[1]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_45 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_46 * __pyx_v_log_forw.strides[1]) ))) - __pyx_v_N);
+                              __pyx_t_44 = __pyx_v_h;
+                              __pyx_t_45 = __pyx_v_t;
+                              __pyx_t_46 = __pyx_v_h;
+                              __pyx_t_47 = __pyx_v_t;
+                              *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_46 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_47 * __pyx_v_log_forw.strides[1]) )) = ((*((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_44 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_45 * __pyx_v_log_forw.strides[1]) ))) - __pyx_v_N);
                           }
                       }
                   }
@@ -6424,12 +6341,12 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
         }
       }
 
-      /* "_utils_cy.pyx":296
- *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+      /* "_utils_cy.pyx":300
+ *         log_forw[i,0] = log_p_states[i,0] + log_init_states[i] + log_lab[i, ii]
  * 
  *     with nogil:             # <<<<<<<<<<<<<<
- *         if flag == 1:
- *             if not isinf(states[0]):
+ * #         if flag == 1:
+ * #             if not isinf(states[0]):
  */
       /*finally:*/ {
         /*normal exit:*/{
@@ -6437,21 +6354,21 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
-          goto __pyx_L14;
+          goto __pyx_L15;
         }
-        __pyx_L13_error: {
+        __pyx_L14_error: {
           #ifdef WITH_THREAD
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
           goto __pyx_L1_error;
         }
-        __pyx_L14:;
+        __pyx_L15:;
       }
   }
 
-  /* "_utils_cy.pyx":340
- * #                    log_forw[st,t] = helpMat
+  /* "_utils_cy.pyx":344
+ * #                     log_forw[st,t] = helpMat
  * 
  *     return Ntsum             # <<<<<<<<<<<<<<
  * 
@@ -6475,7 +6392,6 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_19, 1);
   __Pyx_WriteUnraisable("_utils_cy._log_forward2", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_r = 0;
   __pyx_L0:;
@@ -6658,7 +6574,7 @@ static PyObject *__pyx_pf_9_utils_cy_10_log_forward2(CYTHON_UNUSED PyObject *__p
   return __pyx_r;
 }
 
-/* "_utils_cy.pyx":346
+/* "_utils_cy.pyx":350
  * @cython.boundscheck(False)  # Deactivate bounds checking
  * @cython.wraparound(False)   # Deactivate negative indexing.
  * cpdef _log_backward2(dt[:,:]log_A, dt[:,:] log_p_states, dt[:,:] log_backw,             # <<<<<<<<<<<<<<
@@ -6705,40 +6621,40 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
   Py_ssize_t __pyx_t_28;
   __Pyx_RefNannySetupContext("_log_backward2", 0);
 
-  /* "_utils_cy.pyx":353
+  /* "_utils_cy.pyx":357
  *     cdef int t
  *     cdef int j, ii
  *     cdef dt[:] work_buffer = np.zeros(shape = [K])             # <<<<<<<<<<<<<<
  * 
  *     with nogil:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_K); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_K); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_3);
   PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_shape, __pyx_t_4) < 0) __PYX_ERR(0, 353, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_shape, __pyx_t_4) < 0) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_9_utils_cy_dt(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_9_utils_cy_dt(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_work_buffer = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "_utils_cy.pyx":355
+  /* "_utils_cy.pyx":359
  *     cdef dt[:] work_buffer = np.zeros(shape = [K])
  * 
  *     with nogil:             # <<<<<<<<<<<<<<
@@ -6753,7 +6669,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
       #endif
       /*try:*/ {
 
-        /* "_utils_cy.pyx":356
+        /* "_utils_cy.pyx":360
  * 
  *     with nogil:
  *         for i in prange(K):             # <<<<<<<<<<<<<<
@@ -6783,7 +6699,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
                         {
                             __pyx_v_i = (int)(0 + 1 * __pyx_t_7);
 
-                            /* "_utils_cy.pyx":357
+                            /* "_utils_cy.pyx":361
  *     with nogil:
  *         for i in prange(K):
  *             log_backw[i,T-1] = 0             # <<<<<<<<<<<<<<
@@ -6805,7 +6721,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
             #define unlikely(x) __builtin_expect(!!(x), 0)
         #endif
 
-        /* "_utils_cy.pyx":360
+        /* "_utils_cy.pyx":364
  * 
  * 
  *         for t in range(T-2, -1, -1):             # <<<<<<<<<<<<<<
@@ -6815,7 +6731,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
         for (__pyx_t_8 = (__pyx_v_T - 2); __pyx_t_8 > -1; __pyx_t_8-=1) {
           __pyx_v_t = __pyx_t_8;
 
-          /* "_utils_cy.pyx":361
+          /* "_utils_cy.pyx":365
  * 
  *         for t in range(T-2, -1, -1):
  *             for i in range(K):             # <<<<<<<<<<<<<<
@@ -6827,7 +6743,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
           for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_6; __pyx_t_11+=1) {
             __pyx_v_i = __pyx_t_11;
 
-            /* "_utils_cy.pyx":362
+            /* "_utils_cy.pyx":366
  *         for t in range(T-2, -1, -1):
  *             for i in range(K):
  *                 if  isinf( states[t] ):             # <<<<<<<<<<<<<<
@@ -6838,7 +6754,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
             __pyx_t_13 = (isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_12 * __pyx_v_states.strides[0]) )))) != 0);
             if (__pyx_t_13) {
 
-              /* "_utils_cy.pyx":363
+              /* "_utils_cy.pyx":367
  *             for i in range(K):
  *                 if  isinf( states[t] ):
  *                     ii = 0             # <<<<<<<<<<<<<<
@@ -6847,7 +6763,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
  */
               __pyx_v_ii = 0;
 
-              /* "_utils_cy.pyx":362
+              /* "_utils_cy.pyx":366
  *         for t in range(T-2, -1, -1):
  *             for i in range(K):
  *                 if  isinf( states[t] ):             # <<<<<<<<<<<<<<
@@ -6857,7 +6773,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
               goto __pyx_L16;
             }
 
-            /* "_utils_cy.pyx":365
+            /* "_utils_cy.pyx":369
  *                     ii = 0
  *                 else:
  *                     ii = <int>(states[t]) + 1             # <<<<<<<<<<<<<<
@@ -6870,7 +6786,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
             }
             __pyx_L16:;
 
-            /* "_utils_cy.pyx":368
+            /* "_utils_cy.pyx":372
  * 
  * 
  *                 for j in prange(K):             # <<<<<<<<<<<<<<
@@ -6900,7 +6816,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
                             {
                                 __pyx_v_j = (int)(0 + 1 * __pyx_t_16);
 
-                                /* "_utils_cy.pyx":369
+                                /* "_utils_cy.pyx":373
  * 
  *                 for j in prange(K):
  *                     work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \             # <<<<<<<<<<<<<<
@@ -6912,7 +6828,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
                                 __pyx_t_20 = __pyx_v_j;
                                 __pyx_t_21 = (__pyx_v_t + 1);
 
-                                /* "_utils_cy.pyx":370
+                                /* "_utils_cy.pyx":374
  *                 for j in prange(K):
  *                     work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \
  *                                                         log_p_states[j,t+1] + log_lab[j, ii]             # <<<<<<<<<<<<<<
@@ -6922,7 +6838,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
                                 __pyx_t_22 = __pyx_v_j;
                                 __pyx_t_23 = (__pyx_v_t + 1);
 
-                                /* "_utils_cy.pyx":369
+                                /* "_utils_cy.pyx":373
  * 
  *                 for j in prange(K):
  *                     work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \             # <<<<<<<<<<<<<<
@@ -6932,7 +6848,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
                                 __pyx_t_24 = __pyx_v_j;
                                 __pyx_t_25 = __pyx_v_ii;
 
-                                /* "_utils_cy.pyx":370
+                                /* "_utils_cy.pyx":374
  *                 for j in prange(K):
  *                     work_buffer[j] = log_A[i,j] + log_backw[j,t+1] + \
  *                                                         log_p_states[j,t+1] + log_lab[j, ii]             # <<<<<<<<<<<<<<
@@ -6953,7 +6869,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
                 #define unlikely(x) __builtin_expect(!!(x), 0)
             #endif
 
-            /* "_utils_cy.pyx":372
+            /* "_utils_cy.pyx":376
  *                                                         log_p_states[j,t+1] + log_lab[j, ii]
  * 
  *                 log_backw[i,t] = _logsumexp(work_buffer)             # <<<<<<<<<<<<<<
@@ -6967,7 +6883,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
         }
       }
 
-      /* "_utils_cy.pyx":355
+      /* "_utils_cy.pyx":359
  *     cdef dt[:] work_buffer = np.zeros(shape = [K])
  * 
  *     with nogil:             # <<<<<<<<<<<<<<
@@ -6986,7 +6902,7 @@ static PyObject *__pyx_f_9_utils_cy__log_backward2(__Pyx_memviewslice __pyx_v_lo
       }
   }
 
-  /* "_utils_cy.pyx":346
+  /* "_utils_cy.pyx":350
  * @cython.boundscheck(False)  # Deactivate bounds checking
  * @cython.wraparound(False)   # Deactivate negative indexing.
  * cpdef _log_backward2(dt[:,:]log_A, dt[:,:] log_p_states, dt[:,:] log_backw,             # <<<<<<<<<<<<<<
@@ -7058,41 +6974,41 @@ static PyObject *__pyx_pw_9_utils_cy_13_log_backward2(PyObject *__pyx_self, PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_log_p_states)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 1); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 1); __PYX_ERR(0, 350, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_log_backw)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 2); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 2); __PYX_ERR(0, 350, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_states)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 3); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 3); __PYX_ERR(0, 350, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_log_lab)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 4); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 4); __PYX_ERR(0, 350, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_T)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 5); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 5); __PYX_ERR(0, 350, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  6:
         if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_K)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 6); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, 6); __PYX_ERR(0, 350, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_log_backward2") < 0)) __PYX_ERR(0, 346, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_log_backward2") < 0)) __PYX_ERR(0, 350, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 7) {
       goto __pyx_L5_argtuple_error;
@@ -7105,17 +7021,17 @@ static PyObject *__pyx_pw_9_utils_cy_13_log_backward2(PyObject *__pyx_self, PyOb
       values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
       values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
     }
-    __pyx_v_log_A = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_A.memview)) __PYX_ERR(0, 346, __pyx_L3_error)
-    __pyx_v_log_p_states = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_p_states.memview)) __PYX_ERR(0, 346, __pyx_L3_error)
-    __pyx_v_log_backw = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_backw.memview)) __PYX_ERR(0, 346, __pyx_L3_error)
-    __pyx_v_states = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_9_utils_cy_dt(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_states.memview)) __PYX_ERR(0, 347, __pyx_L3_error)
-    __pyx_v_log_lab = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_lab.memview)) __PYX_ERR(0, 347, __pyx_L3_error)
-    __pyx_v_T = __Pyx_PyInt_As_int(values[5]); if (unlikely((__pyx_v_T == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 348, __pyx_L3_error)
-    __pyx_v_K = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_K == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 348, __pyx_L3_error)
+    __pyx_v_log_A = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_A.memview)) __PYX_ERR(0, 350, __pyx_L3_error)
+    __pyx_v_log_p_states = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_p_states.memview)) __PYX_ERR(0, 350, __pyx_L3_error)
+    __pyx_v_log_backw = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_backw.memview)) __PYX_ERR(0, 350, __pyx_L3_error)
+    __pyx_v_states = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_9_utils_cy_dt(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_states.memview)) __PYX_ERR(0, 351, __pyx_L3_error)
+    __pyx_v_log_lab = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_9_utils_cy_dt(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_log_lab.memview)) __PYX_ERR(0, 351, __pyx_L3_error)
+    __pyx_v_T = __Pyx_PyInt_As_int(values[5]); if (unlikely((__pyx_v_T == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 352, __pyx_L3_error)
+    __pyx_v_K = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_K == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 352, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 346, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_log_backward2", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 350, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("_utils_cy._log_backward2", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7134,12 +7050,12 @@ static PyObject *__pyx_pf_9_utils_cy_12_log_backward2(CYTHON_UNUSED PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("_log_backward2", 0);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_log_A.memview)) { __Pyx_RaiseUnboundLocalError("log_A"); __PYX_ERR(0, 346, __pyx_L1_error) }
-  if (unlikely(!__pyx_v_log_p_states.memview)) { __Pyx_RaiseUnboundLocalError("log_p_states"); __PYX_ERR(0, 346, __pyx_L1_error) }
-  if (unlikely(!__pyx_v_log_backw.memview)) { __Pyx_RaiseUnboundLocalError("log_backw"); __PYX_ERR(0, 346, __pyx_L1_error) }
-  if (unlikely(!__pyx_v_states.memview)) { __Pyx_RaiseUnboundLocalError("states"); __PYX_ERR(0, 346, __pyx_L1_error) }
-  if (unlikely(!__pyx_v_log_lab.memview)) { __Pyx_RaiseUnboundLocalError("log_lab"); __PYX_ERR(0, 346, __pyx_L1_error) }
-  __pyx_t_1 = __pyx_f_9_utils_cy__log_backward2(__pyx_v_log_A, __pyx_v_log_p_states, __pyx_v_log_backw, __pyx_v_states, __pyx_v_log_lab, __pyx_v_T, __pyx_v_K, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
+  if (unlikely(!__pyx_v_log_A.memview)) { __Pyx_RaiseUnboundLocalError("log_A"); __PYX_ERR(0, 350, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_log_p_states.memview)) { __Pyx_RaiseUnboundLocalError("log_p_states"); __PYX_ERR(0, 350, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_log_backw.memview)) { __Pyx_RaiseUnboundLocalError("log_backw"); __PYX_ERR(0, 350, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_states.memview)) { __Pyx_RaiseUnboundLocalError("states"); __PYX_ERR(0, 350, __pyx_L1_error) }
+  if (unlikely(!__pyx_v_log_lab.memview)) { __Pyx_RaiseUnboundLocalError("log_lab"); __PYX_ERR(0, 350, __pyx_L1_error) }
+  __pyx_t_1 = __pyx_f_9_utils_cy__log_backward2(__pyx_v_log_A, __pyx_v_log_p_states, __pyx_v_log_backw, __pyx_v_states, __pyx_v_log_lab, __pyx_v_T, __pyx_v_K, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 350, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
