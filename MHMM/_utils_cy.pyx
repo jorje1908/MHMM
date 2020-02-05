@@ -288,19 +288,23 @@ cpdef dt _log_forward2( dt[:,:] log_A, dt[:,:] log_lab,
     cdef dt[:] work_buffer = np.zeros(shape = [K])
     cdef dt helpMat
     
+    if  isinf( states[0] ):
+            ii = 0
+    else:
+            ii = <int> (states[0]) + 1
    
     for i in prange(K, nogil = True):#initialize
         
-        log_forw[i,0] = log_p_states[i,0] + log_init_states[i]
+        log_forw[i,0] = log_p_states[i,0] + log_init_states[i] + log_lab[i, ii]
         
     with nogil:   
-        if flag == 1:
-            if not isinf(states[0]):
-                s0 = <int>(states[0])
+#         if flag == 1:
+#             if not isinf(states[0]):
+#                 s0 = <int>(states[0])
                 
-                helpMat = _logsumexp(log_forw[:,0])
-                log_forw[:,0] = -INFINITY
-                log_forw[s0, 0] = helpMat
+#                 helpMat = _logsumexp(log_forw[:,0])
+#                 log_forw[:,0] = -INFINITY
+#                 log_forw[s0, 0] = helpMat
         #added           
         N0 = _logsumexp(log_forw[:,0])
         for h in prange(K):
@@ -330,12 +334,12 @@ cpdef dt _log_forward2( dt[:,:] log_A, dt[:,:] log_lab,
             for h in prange(K):
                 log_forw[h,t] = log_forw[h,t] - N
                 
-            if flag == 1:
-                if not isinf( states[t] ):
-                    st = <int>(states[t])
-                    helpMat = _logsumexp(log_forw[:,t])
-                    log_forw[:,t] = -INFINITY
-                    log_forw[st,t] = helpMat
+#             if flag == 1:
+#                 if not isinf( states[t] ):
+#                     st = <int>(states[t])
+#                     helpMat = _logsumexp(log_forw[:,t])
+#                     log_forw[:,t] = -INFINITY
+#                     log_forw[st,t] = helpMat
                     
     return Ntsum
 

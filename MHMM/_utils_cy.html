@@ -3050,7 +3050,6 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
   int __pyx_v_h;
   int __pyx_v_ii;
   int __pyx_v_s0;
-  int __pyx_v_st;
   __pyx_t_9_utils_cy_dt __pyx_v_N0;
   __pyx_t_9_utils_cy_dt __pyx_v_Ntsum;
   __pyx_t_9_utils_cy_dt __pyx_v_N;
@@ -3653,79 +3652,16 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
               #define likely(x)   __builtin_expect(!!(x), 1)
               #define unlikely(x) __builtin_expect(!!(x), 0)
           #endif
-</pre><pre class="cython line score-0">&#xA0;<span class="">332</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">333</span>:             <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mf">1</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>          __pyx_t_14 = ((__pyx_v_flag == 1) != 0);
-          if (__pyx_t_14) {
-/* … */
-          }
         }
       }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">334</span>:                 <span class="k">if</span> <span class="ow">not</span> <span class="n">isinf</span><span class="p">(</span> <span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="p">):</span></pre>
-<pre class='cython code score-0 '>            __pyx_t_49 = __pyx_v_t;
-            __pyx_t_14 = ((!(isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_49 * __pyx_v_states.strides[0]) )))) != 0)) != 0);
-            if (__pyx_t_14) {
-/* … */
-            }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">335</span>:                     <span class="n">st</span> <span class="o">=</span> <span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;(</span><span class="n">states</span><span class="p">[</span><span class="n">t</span><span class="p">])</span></pre>
-<pre class='cython code score-0 '>              __pyx_t_50 = __pyx_v_t;
-              __pyx_v_st = ((int)(*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_50 * __pyx_v_states.strides[0]) ))));
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">336</span>:                     <span class="n">helpMat</span> <span class="o">=</span> <span class="n">_logsumexp</span><span class="p">(</span><span class="n">log_forw</span><span class="p">[:,</span><span class="n">t</span><span class="p">])</span></pre>
-<pre class='cython code score-0 '>              __pyx_t_19.data = __pyx_v_log_forw.data;
-              __pyx_t_19.memview = __pyx_v_log_forw.memview;
-              __PYX_INC_MEMVIEW(&amp;__pyx_t_19, 0);
-              __pyx_t_19.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_19.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_19.suboffsets[0] = -1;
-
-{
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_t;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) <span class='error_goto'>__PYX_ERR(0, 336, __pyx_L13_error)</span>
-        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-__pyx_v_helpMat = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
-              __PYX_XDEC_MEMVIEW(&amp;__pyx_t_19, 0);
-              __pyx_t_19.memview = NULL;
-              __pyx_t_19.data = NULL;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">337</span>:                     <span class="n">log_forw</span><span class="p">[:,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">INFINITY</span></pre>
-<pre class='cython code score-0 '>              __pyx_t_19.data = __pyx_v_log_forw.data;
-              __pyx_t_19.memview = __pyx_v_log_forw.memview;
-              __PYX_INC_MEMVIEW(&amp;__pyx_t_19, 0);
-              __pyx_t_19.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_19.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_19.suboffsets[0] = -1;
-
-{
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_t;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) <span class='error_goto'>__PYX_ERR(0, 337, __pyx_L13_error)</span>
-        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-{
-                  __pyx_t_9_utils_cy_dt __pyx_temp_scalar = (-INFINITY);
-                  {
-                      Py_ssize_t __pyx_temp_extent_0 = __pyx_t_19.shape[0];
-                      Py_ssize_t __pyx_temp_stride_0 = __pyx_t_19.strides[0];
-                      char *__pyx_temp_pointer_0;
-                      Py_ssize_t __pyx_temp_idx_0;
-                      __pyx_temp_pointer_0 = __pyx_t_19.data;
-                      for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 &lt; __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                        *((__pyx_t_9_utils_cy_dt *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
-                        __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                      }
-                  }
-              }
-              __PYX_XDEC_MEMVIEW(&amp;__pyx_t_19, 0);
-              __pyx_t_19.memview = NULL;
-              __pyx_t_19.data = NULL;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">338</span>:                     <span class="n">log_forw</span><span class="p">[</span><span class="n">st</span><span class="p">,</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">helpMat</span></pre>
-<pre class='cython code score-0 '>              __pyx_t_51 = __pyx_v_st;
-              __pyx_t_52 = __pyx_v_t;
-              *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_51 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_52 * __pyx_v_log_forw.strides[1]) )) = __pyx_v_helpMat;
-</pre><pre class="cython line score-0">&#xA0;<span class="">339</span>: </pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">332</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">333</span>: <span class="c">#            if flag == 1:</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">334</span>: <span class="c">#                if not isinf( states[t] ):</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">335</span>: <span class="c">#                    st = &lt;int&gt;(states[t])</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">336</span>: <span class="c">#                    helpMat = _logsumexp(log_forw[:,t])</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">337</span>: <span class="c">#                    log_forw[:,t] = -INFINITY</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">338</span>: <span class="c">#                    log_forw[st,t] = helpMat</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">339</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">340</span>:     <span class="k">return</span> <span class="n">Ntsum</span></pre>
 <pre class='cython code score-0 '>  __pyx_r = __pyx_v_Ntsum;
   goto __pyx_L0;

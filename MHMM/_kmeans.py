@@ -76,7 +76,7 @@ def _init_steady_means(data, labels, unique, D):
     
     """
     based on the labels and the unique values 
-    initializes the fixed means to used in the lagorithm
+    initializes the fixed means to be used in the algorithm
     
     """
     

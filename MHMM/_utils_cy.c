@@ -5800,7 +5800,6 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
   int __pyx_v_h;
   int __pyx_v_ii;
   int __pyx_v_s0;
-  int __pyx_v_st;
   __pyx_t_9_utils_cy_dt __pyx_v_N0;
   __pyx_t_9_utils_cy_dt __pyx_v_Ntsum;
   __pyx_t_9_utils_cy_dt __pyx_v_N;
@@ -5856,10 +5855,6 @@ static __pyx_t_9_utils_cy_dt __pyx_f_9_utils_cy__log_forward2(__Pyx_memviewslice
   Py_ssize_t __pyx_t_46;
   Py_ssize_t __pyx_t_47;
   Py_ssize_t __pyx_t_48;
-  Py_ssize_t __pyx_t_49;
-  Py_ssize_t __pyx_t_50;
-  Py_ssize_t __pyx_t_51;
-  Py_ssize_t __pyx_t_52;
   __Pyx_RefNannySetupContext("_log_forward2", 0);
 
   /* "_utils_cy.pyx":288
@@ -6408,7 +6403,7 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
  *             for h in prange(K):
  *                 log_forw[h,t] = log_forw[h,t] - N             # <<<<<<<<<<<<<<
  * 
- *             if flag == 1:
+ * #            if flag == 1:
  */
                               __pyx_t_45 = __pyx_v_h;
                               __pyx_t_46 = __pyx_v_t;
@@ -6426,131 +6421,6 @@ __pyx_v_N0 = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
               #define likely(x)   __builtin_expect(!!(x), 1)
               #define unlikely(x) __builtin_expect(!!(x), 0)
           #endif
-
-          /* "_utils_cy.pyx":333
- *                 log_forw[h,t] = log_forw[h,t] - N
- * 
- *             if flag == 1:             # <<<<<<<<<<<<<<
- *                 if not isinf( states[t] ):
- *                     st = <int>(states[t])
- */
-          __pyx_t_14 = ((__pyx_v_flag == 1) != 0);
-          if (__pyx_t_14) {
-
-            /* "_utils_cy.pyx":334
- * 
- *             if flag == 1:
- *                 if not isinf( states[t] ):             # <<<<<<<<<<<<<<
- *                     st = <int>(states[t])
- *                     helpMat = _logsumexp(log_forw[:,t])
- */
-            __pyx_t_49 = __pyx_v_t;
-            __pyx_t_14 = ((!(isinf((*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_49 * __pyx_v_states.strides[0]) )))) != 0)) != 0);
-            if (__pyx_t_14) {
-
-              /* "_utils_cy.pyx":335
- *             if flag == 1:
- *                 if not isinf( states[t] ):
- *                     st = <int>(states[t])             # <<<<<<<<<<<<<<
- *                     helpMat = _logsumexp(log_forw[:,t])
- *                     log_forw[:,t] = -INFINITY
- */
-              __pyx_t_50 = __pyx_v_t;
-              __pyx_v_st = ((int)(*((__pyx_t_9_utils_cy_dt *) ( /* dim=0 */ (__pyx_v_states.data + __pyx_t_50 * __pyx_v_states.strides[0]) ))));
-
-              /* "_utils_cy.pyx":336
- *                 if not isinf( states[t] ):
- *                     st = <int>(states[t])
- *                     helpMat = _logsumexp(log_forw[:,t])             # <<<<<<<<<<<<<<
- *                     log_forw[:,t] = -INFINITY
- *                     log_forw[st,t] = helpMat
- */
-              __pyx_t_19.data = __pyx_v_log_forw.data;
-              __pyx_t_19.memview = __pyx_v_log_forw.memview;
-              __PYX_INC_MEMVIEW(&__pyx_t_19, 0);
-              __pyx_t_19.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_19.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_19.suboffsets[0] = -1;
-
-{
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_t;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) __PYX_ERR(0, 336, __pyx_L13_error)
-        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-__pyx_v_helpMat = __pyx_f_9_utils_cy__logsumexp(__pyx_t_19);
-              __PYX_XDEC_MEMVIEW(&__pyx_t_19, 0);
-              __pyx_t_19.memview = NULL;
-              __pyx_t_19.data = NULL;
-
-              /* "_utils_cy.pyx":337
- *                     st = <int>(states[t])
- *                     helpMat = _logsumexp(log_forw[:,t])
- *                     log_forw[:,t] = -INFINITY             # <<<<<<<<<<<<<<
- *                     log_forw[st,t] = helpMat
- * 
- */
-              __pyx_t_19.data = __pyx_v_log_forw.data;
-              __pyx_t_19.memview = __pyx_v_log_forw.memview;
-              __PYX_INC_MEMVIEW(&__pyx_t_19, 0);
-              __pyx_t_19.shape[0] = __pyx_v_log_forw.shape[0];
-__pyx_t_19.strides[0] = __pyx_v_log_forw.strides[0];
-    __pyx_t_19.suboffsets[0] = -1;
-
-{
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_t;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_log_forw.strides[1];
-        if ((0)) __PYX_ERR(0, 337, __pyx_L13_error)
-        __pyx_t_19.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-{
-                  __pyx_t_9_utils_cy_dt __pyx_temp_scalar = (-INFINITY);
-                  {
-                      Py_ssize_t __pyx_temp_extent_0 = __pyx_t_19.shape[0];
-                      Py_ssize_t __pyx_temp_stride_0 = __pyx_t_19.strides[0];
-                      char *__pyx_temp_pointer_0;
-                      Py_ssize_t __pyx_temp_idx_0;
-                      __pyx_temp_pointer_0 = __pyx_t_19.data;
-                      for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                        *((__pyx_t_9_utils_cy_dt *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
-                        __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                      }
-                  }
-              }
-              __PYX_XDEC_MEMVIEW(&__pyx_t_19, 0);
-              __pyx_t_19.memview = NULL;
-              __pyx_t_19.data = NULL;
-
-              /* "_utils_cy.pyx":338
- *                     helpMat = _logsumexp(log_forw[:,t])
- *                     log_forw[:,t] = -INFINITY
- *                     log_forw[st,t] = helpMat             # <<<<<<<<<<<<<<
- * 
- *     return Ntsum
- */
-              __pyx_t_51 = __pyx_v_st;
-              __pyx_t_52 = __pyx_v_t;
-              *((__pyx_t_9_utils_cy_dt *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_log_forw.data + __pyx_t_51 * __pyx_v_log_forw.strides[0]) ) + __pyx_t_52 * __pyx_v_log_forw.strides[1]) )) = __pyx_v_helpMat;
-
-              /* "_utils_cy.pyx":334
- * 
- *             if flag == 1:
- *                 if not isinf( states[t] ):             # <<<<<<<<<<<<<<
- *                     st = <int>(states[t])
- *                     helpMat = _logsumexp(log_forw[:,t])
- */
-            }
-
-            /* "_utils_cy.pyx":333
- *                 log_forw[h,t] = log_forw[h,t] - N
- * 
- *             if flag == 1:             # <<<<<<<<<<<<<<
- *                 if not isinf( states[t] ):
- *                     st = <int>(states[t])
- */
-          }
         }
       }
 
@@ -6581,7 +6451,7 @@ __pyx_t_19.strides[0] = __pyx_v_log_forw.strides[0];
   }
 
   /* "_utils_cy.pyx":340
- *                     log_forw[st,t] = helpMat
+ * #                    log_forw[st,t] = helpMat
  * 
  *     return Ntsum             # <<<<<<<<<<<<<<
  * 

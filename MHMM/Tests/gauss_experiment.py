@@ -53,7 +53,8 @@ states1 = make_supervised(states.copy(), value = 0)
 #states1 = None
 #statesinf = np.full( shape = [states1.shape[0], states1.shape[1]], fill_value = -np.inf )
 #statesinf[0, 10] = 1
-labels_mat = np.log( [[1,0,0], [0,0,1]] )
+labels_mat = np.log( [[1,0,0.9], [0,0,1]] )
+#labels_mat = None
 mhmm = MHMM(n_HMMS = n_HMMS, n_states = 2, n_Comp = n_Comp, EM_iter = EM_iter, tol = 10**(-8))
 mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = 'mymhmm.npy', states_off = 0,
                 label_mat = labels_mat)
