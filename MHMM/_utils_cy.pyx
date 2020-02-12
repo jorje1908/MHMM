@@ -109,10 +109,12 @@ cpdef dt _log_forward( dt[:,:] log_A, dt[:,:] log_p_states,  dt[:] log_init_stat
                 log_forw[s0, 0] = helpMat
         #added           
         N0 = _logsumexp(log_forw[:,0])
+        #printf('%f', N0)
         for h in prange(K):
             log_forw[h,0] =log_forw[h,0] - N0   
         #log_forw[:,0] = np.subtract(log_forw[:,0], N0)   
         Ntsum = N0
+       # printf('%f', Ntsum)
         ######
         
         
@@ -126,7 +128,8 @@ cpdef dt _log_forward( dt[:,:] log_A, dt[:,:] log_p_states,  dt[:] log_init_stat
                 log_forw[i,t] = _logsumexp(work_buffer) + log_p_states[i,t]
                 N = _logaddexp(log_forw[i,t], N)
                 
-            Ntsum = _logaddexp(N, Ntsum)
+            #Ntsum = _logaddexp(N, Ntsum)
+            Ntsum = Ntsum + N
             #log_forw[:,t] = np.subtract(log_forw[:,t], N)  
             for h in prange(K):
                 log_forw[h,t] = log_forw[h,t] - N
@@ -137,7 +140,8 @@ cpdef dt _log_forward( dt[:,:] log_A, dt[:,:] log_p_states,  dt[:] log_init_stat
                     helpMat = _logsumexp(log_forw[:,t])
                     log_forw[:,t] = -INFINITY
                     log_forw[st,t] = helpMat
-        
+            #printf('Ntsum In for: %f', Ntsum)
+    #printf('Ntsum last %f', Ntsum)   
     return Ntsum
                 
 

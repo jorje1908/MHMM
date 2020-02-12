@@ -45,12 +45,10 @@ def make_supervised( states_matrix, value = 0, value2 = None, value3 = 2):
 
 def make_supervised2( states_matrix, drop = 0.7):
     """
-    takes a matrix with values 
-    (in general 0 or 1) and produces
-    a matrix with 1 and -infinities
-    replacing the value "value" with -inf
+     
+    drop randomy a percentage of the state labels
     
-    value2 : what value to replace with value 3
+   
     """
     
     perc = drop
