@@ -209,7 +209,7 @@ class HMM(object):
          calculates the probabiity of an observation to be generated 
          by the state "state" --> p(x_t | z_t = k)
          
-         returns a matrix kx1
+         returns a matrix 1x1
          x = (d,)
          
          """

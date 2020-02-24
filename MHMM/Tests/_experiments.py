@@ -52,7 +52,7 @@ def generate_Coin(A = None, init = None, p_Coin = None, c_type = "Standard",
  
     
 def gauss_seq(T = 24, N = 500, A = None, mean = [0,1], 
-                             std = [1,1]):
+                             std = [1,1], pi = [1,0,0]):
     
     """
     Generate a training set of N sequences of length T, to train
@@ -67,12 +67,12 @@ def gauss_seq(T = 24, N = 500, A = None, mean = [0,1],
     states = np.zeros(shape = [N, T] )
     
     for i in range(N):
-        data[i,:,:], states[i] = generate_gauss(T, A, mean, std)
+        data[i,:,:], states[i] = generate_gauss(T, A, pi, mean, std)
         
     return data, states
     
     
-def generate_gauss( T, A, mean, std): 
+def generate_gauss( T, A, pi,  mean, std): 
     
     """
     
@@ -89,7 +89,7 @@ def generate_gauss( T, A, mean, std):
     
     
     #start by picking a state at random
-    s_t = np.random.choice(np.arange(K), size = 1)[0].astype(int)
+    s_t = np.random.choice(np.arange(K), size = 1, p = pi)[0].astype(int)
     x_t = np.random.normal(loc = mean[s_t], scale = std[s_t], size = mean.shape[1])[0]
     
     

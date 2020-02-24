@@ -46,7 +46,7 @@ def make_supervised( states_matrix, value = 0, value2 = None, value3 = 2):
 def make_supervised2( states_matrix, drop = 0.7):
     """
      
-    drop randomy a percentage of the state labels
+    drop randomly a percentage of the state labels
     
    
     """
@@ -88,7 +88,28 @@ def make_supervised3( states_matrix, drop = 0.8, drop_value = 1):
     
 
 
+def dont_drop( values, states = None, drop_perc = 0):
+    """
+    make -infinity all the values in the states
+    except the values "values"
     
+    """    
+    
+    N,T = states.shape
+    
+    st = states.reshape(N*T)
+    
+    if drop_perc == 0:
+        st[ ~np.isin(st, values) ] = -np.inf
+        
+    else:
+        
+        indx = np.random.choice( np.arange(N*T), size = int(drop_perc*N*T), 
+                            replace = False)
+        
+        st[ indx ] =   -np.inf
+    
+    return st.reshape([N,T])
         
     
 

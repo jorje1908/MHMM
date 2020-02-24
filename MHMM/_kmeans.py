@@ -29,13 +29,15 @@ def custom_kmeans( data =  None, labels = None, K = None, itera = 100, tol = 10*
     #find unique labels
     unique = np.unique( labels )
     
-
-    means = np.zeros( shape = [K,D] )
+    #initialize means
+    means = np.zeros( shape = [K, D] )
     
-    #initialize super steady clusters
+    #initialize super steady clusters base on the labels
     st_means, st_lengths = _init_steady_means(data, labels, unique, D)
     
     #take points of consideration
+    #only -infinities, because the other 
+    #points were initialized to their respective state
     ind_inf = np.where( np.isinf(labels))[0]
 
     #initialize rest of the means with kmeans plus plus
