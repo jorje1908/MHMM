@@ -1519,7 +1519,7 @@ class MHMM():
         self.logLikelihood[i]  = self.logLikelihood[i]/N
         lgi = self.logLikelihood[i]
         
-        print("Iteration: {} LogLikelihood:{:.2}".format( i, lgi ))
+        print("Iteration: {} LogLikelihood:{:.10}".format( i, lgi ))
         
         if i > 0:
             diff = np.abs( self.logLikelihood[i] - self.logLikelihood[i-1])

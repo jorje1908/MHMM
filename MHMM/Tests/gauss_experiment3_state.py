@@ -61,13 +61,13 @@ tol = 10**(-6)
 n_states = 3
 A_mat = np.array([[0.6, 0.4, 0], [0.2, 0.7, 0.1],[ 0, 0.4, 0.6]])
 #A_mat = None
-#pi = np.array([1, 0, 0])
-pi = None
+pi = np.array([1, 0, 0])
+#pi = None
 states1 = dont_drop(values = 2, states = states.copy(), drop_perc = 0.8)
 #states1 = None
 
 labels_mat = np.log( [[1,0,0,0], [1,0,0,0], [0,0,0,1]] )
-labels_mat = None
+#labels_mat = None
 mhmm = MHMM(n_HMMS = n_HMMS, n_states = n_states, n_Comp = n_Comp, EM_iter = EM_iter, tol = tol)
 mhmm = mhmm.fit( data = data, states = states1, dates = None, save_name = None, states_off = 0,
                 label_mat = labels_mat, A = A_mat, pi  = pi)

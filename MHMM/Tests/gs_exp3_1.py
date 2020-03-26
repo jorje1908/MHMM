@@ -33,7 +33,7 @@ a1 = [0.3, 0.6, 0.1]
 a2 = [0, 0.3, 0.7]
 
 #Initialize Means and Standard Deviations
-mean = np.array([[-1,-1],[0,0], [1,1]])
+mean = np.array([[-1,-1],[0,0], [2,2]])
 std = np.array([[1,1],[1,1], [1,1]])
 pi = [1,0,0]
 A = np.array([a0, a1, a2])
@@ -56,13 +56,13 @@ data_ts, states_ts = gauss_seq(T = T, N = N, A = A, mean = mean, std = std)
 #TRAIN HMM
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 100 #30
-tol = 10**(-6)
+EM_iter = 1000 #30
+tol = 10**(-9)
 n_states = 3
 A_mat = np.array([[0.6, 0.4, 0], [0.2, 0.7, 0.1],[ 0, 0.4, 0.6]])
 #A_mat = None
-#pi = np.array([1, 0, 0])
-pi = None
+pi = np.array([1, 0, 0])
+#pi = None
 drop_perc = 0.0
 states1 = dont_drop(values = 2, states = states.copy(), drop_perc = drop_perc)
 #states1 = None
@@ -96,6 +96,7 @@ pl = data2d_pd.iloc[:, sel:]
 testf = data2d_pdts.iloc[:,0: sel]
 pl_ts = data2d_pdts.iloc[:, sel:]
 
+# %%Printing
 #take combinations of the labels
 if labels_mat is not None:
     print("With labeling matrix")
@@ -135,7 +136,7 @@ print(confusion_matrix(y_true = pl.labels, y_pred = pl.argmax, labels = [0,1,2])
 
 
 print("\n\nFor Testing Data")
-print("Number of Initial Labels: ", pl_ts.labels.sum())
+print("Number of Initial Labels: ", (pl_ts.labels == 2).sum())
 print("States 0 + 1: ", pl_ts.sum01.sum())
 print("States 0 + 2: ", pl_ts.sum02.sum())
 print("States 1 + 2: ", pl_ts.sum12.sum())
@@ -149,11 +150,13 @@ print("Relabeling Accuracy: ", np.sum(pl_ts.argmax == pl_ts.labels)/len(pl_ts) )
 print(confusion_matrix(y_true = pl_ts.labels, y_pred = pl_ts.argmax, labels = [0,1,2]))
 
 # %% Supervised Training
-
-md1 = LogisticRegression()
+C = 0.5
+penalty = 'l1'
+solver = 'saga'
+md1 = LogisticRegression(penalty = penalty, C = C, solver = solver)
 md1 = md1.fit(trainf.values, pl.sum12.values)
 
-md2 = LogisticRegression()
+md2 = LogisticRegression(penalty = penalty, C = C, solver = solver)
 md2 = md2.fit(trainf.values, pl.labels2.values)
 
 
@@ -166,9 +169,9 @@ prob_test2 = md2.predict_proba(testf.values)[:,1].reshape([Nts,T])
 ytest = pl_ts.labels2.values.reshape([Nts, T])
 
 lookback = 1
-ev1, _ = time_series_multiple_th(prob_test, ytest, taus = 12, lookback = lookback)
+ev1, dlist1 = time_series_multiple_th(prob_test, ytest, taus = 12, lookback = lookback)
                                 
-ev2, _ = time_series_multiple_th(prob_test2, ytest, taus = 12, lookback = lookback)
+ev2, dlist2 = time_series_multiple_th(prob_test2, ytest, taus = 12, lookback = lookback)
 
 
 print(ev1['Auc'][0], ev2['Auc'][0])
@@ -183,21 +186,42 @@ display(ev2)
 
 
 
+# %%Plotting
 
 
+mask = pl.labels2 == 1
+x = np.random.uniform(low = -10, high = 10, size = 100000)
 
+coef1 = md1.coef_[0]
+int1 = md1.intercept_[0]
+x21 = -x*coef1[0]/coef1[1] +(- int1 )/coef1[1]
 
-
+coef2 = md2.coef_[0]
+int2 = md2.intercept_[0]
+x22 = -x*coef2[0]/coef2[1] + (-int2 )/coef2[1]
 
 
 
 data2d = data.reshape([N*T, -1])
-plt.scatter(data2d[:,0], data2d[:,1], s = 0.1)
+fig, ax = plt.subplots(1,1, figsize = (12,12))
+ax.scatter(data2d[mask][:,0], data2d[mask][:,1], s = 0.1)
+ax.scatter(data2d[~mask][:,0], data2d[~mask][:,1], s = 0.1)
+
+ax.plot(x, x21)
+ax.plot(x, x22)
+ax.set_xlabel('x1')
+ax.set_ylabel('x2')
+ax.legend(['Model 1', 'Baseline'])
 
 
 
+# %% CLassification report
+ypred1 = (prob_test >= 0.5).reshape(Nts*T)
+ypred2 = (prob_test2 >= 0.5).reshape(Nts*T)
 
-
+from sklearn.metrics import classification_report
+print(classification_report(pl_ts.labels2.values, ypred1))
+print(classification_report(pl_ts.labels2.values, ypred2))
 
 
 
