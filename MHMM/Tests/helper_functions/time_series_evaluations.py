@@ -1,7 +1,21 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Mar 27 13:35:49 2020
+
+@author: george
+
+Time Series Evaluations
+
+"""
+
 import numpy as np
 import pandas as pd
 from scipy.integrate import trapz
 import time
+
+
+
 
 def time_series_analysis(probabilities, labels, dates = None, tau = 0.5, lookback = 0, return_pos = 0, Dminus = 0):
     """
@@ -121,14 +135,16 @@ def time_series_analysis(probabilities, labels, dates = None, tau = 0.5, lookbac
     except:
         precision = 0
         
-    names = ['Tau','Average D', 'TP','FP','TN', 'FN','Accuracy', 'TPR', 'FPR', 'Precision','#TS']
+    names = ['Tau','Average D', 'TP','FP','TN', 'FN',
+             'Accuracy', 'TPR', 'FPR', 'Precision','#TS']
     results = [tau,delta_av, TP, FP, TN, FN, accuracy, recall, specificity, precision, N ]
     results_pd = pd.DataFrame(data = np.array(results).reshape(1,11), columns = names)
     
     if return_pos == 0:
         return results_pd, Dlist #, check
     
-    return results_pd, Dlist, [ np.array(TPlist), np.array(TNlist), np.array(FPlist), np.array(FNlist) ]
+    return results_pd, Dlist, [ np.array(TPlist), 
+                        np.array(TNlist), np.array(FPlist), np.array(FNlist) ]
     
 def compute_delta( probas, labels):
     """
@@ -184,221 +200,8 @@ def prob_lookback(probability, st, ed, lookback):
             proba_new[i] = 1
      
     return proba_new
-        
-        
-        
-
-def proba_hmm( hmm, data3d, prob = 1):
-    """
-    returns a matrix with probabilities
-    calculated by the HMM
-    
-    hmm: an hmm class object
-    data3d: matrix with data points DxTxF
-    
-    prob: calculates the probability of being
-    at state "prob" 0 or 1: default 1
-    
-    """
-    
-    N = data3d.shape[0]
-    T = data3d.shape[1]
-    
-    proba_mat = np.zeros( shape = [N,T])
-    
-    for i in range(N):
-        point = data3d[i]
-        proba =  np.exp(hmm.log_forward(point))[int(prob), :]
-        
-        proba_mat[i,:] = proba
-        
-    return proba_mat
-
-def hmm_proba_3d_ref(data3d, dates, ref, hmm, tau = 0.5, value = 1):
-    """
-    
-    assigns labels in the training points for the 
-    SGMM training based on hmm
-    
-    
-    """
-    ref1 = ref.copy()
-    N = data3d.shape[0]
-    probas = []
-    for i in range(N):
-        st = int(dates[i, 0])
-        end = int(dates[i, 1])
-        
-        point = data3d[i, st:end+1,:]
-        proba = np.exp(hmm.log_forward(point))[value, :]
-        probas.append(proba)
-        for j in range(st, end+1):
-            if proba[j-st] >= tau:
-                ref1[i,j] = 1
-                
-    return ref1, probas
-
-def hmm_proba_3d_ref2(data3d, dates, ref, hmm, tau = 0.5, tau_low = 0.3, value = 1, value_low = -1):
-    """
-    
-    assigns labels in the training points for the 
-    SGMM training based on hmm
-    
-    
-    """
-    ref1 = ref.copy()
-    N = data3d.shape[0]
-    probas = []
-    for i in range(N):
-        st = int(dates[i, 0])
-        end = int(dates[i, 1])
-        
-        point = data3d[i, st:end+1,:]
-        proba = np.exp(hmm.log_forward(point))[value, :]
-        probas.append(proba)
-        for j in range(st, end+1):
-            if proba[j-st] >= tau:
-                ref1[i,j] = 1
-                
-            if proba[j-st] <= tau_low:
-                if ref1[i,j] != 1:
-                    ref1[i,j] = value_low
-                
-    return ref1, probas
-
-def relabel(data3d, labels, hmm, tau_low = 0.5, tau_high = 0.7, state0 = 0,
-            state1 = 1, label_mat = None, states = None, comb = 0):
-    """
-    relabeling
-    data
-    
-    """
-    N = data3d.shape[0]
-    T = data3d.shape[1]
-    labels = labels.copy()
-    K = hmm.states_
-    probas = np.array([]).reshape([0,T])
-
-    third_state = np.setdiff1d(np.arange(K), np.array([state0, state1]))[0]
-    print("third state: ", third_state) 
-    print("Labels before relabelling: {}".format(np.sum(labels)))
-    
-    for i in range(N):
-        point = data3d[i,:,:]
-        prob = np.exp(hmm.log_forward(point, label_mat = label_mat, states = states[i]))
-        probas = np.concatenate([probas,prob], axis = 0)
-        
-        #proba_state = prob[state]
-        for j in range(T):
-            if comb == 0:
-                if prob[state0][j] >= tau_low and (labels[i,j] != 1):
-                    labels[i,j] = -1
-                
-                if (prob[state1][j]) >= tau_high:
-                    labels[i,j] = 1
-            elif comb == 1:
-                if (prob[state0][j] + prob[third_state][j]) >= tau_low and (labels[i,j] != 1):
-                    labels[i,j] = -1
-                
-                if (prob[state1][j]) >= tau_high:
-                    labels[i,j] = 1
-                    
-            elif comb == 2:
-                if (prob[state0][j] ) >= tau_low and (labels[i,j] != 1):
-                    labels[i,j] = -1
-                
-                if (prob[state1][j] + prob[third_state][j]) >= tau_high:
-                    labels[i,j] = 1
-            else:
-                if (prob[state0][j] ) >= tau_low :
-                    labels[i,j] = -1
-                
-                if (prob[state1][j]) >= tau_high:
-                    labels[i,j] = 1
-                
-                
-    probas = np.array(probas).reshape([hmm.states_, N*T]).T           
-    labels1d = labels.reshape([N*T,1])
-    mask = labels1d == 0
-    indx = np.where(labels1d != 0)[0]
-    if len(mask > 0):
-        labels1d = labels1d[~mask]
-        probas = probas[indx]
-    
-    labels1d[labels1d == -1] = 0
-    print("Labels after relabelling: {}".format(np.sum(labels1d)))
-    
-    return labels1d, probas, mask, indx
 
 
-def relabel2(data3d, hmm,  labels_hmm = None, labels = None,
-             label_mat = None, func = 'forw'):
-    
-    """
-        data3d: 3D data NxTXD
-        labels_hmm : NxT labels with -infs inside
-        hmm: hmm model
-        labels: real hmm labels
-        label_mat: labeling matrix
-     
-    """
-    
-    N, T, D = data3d.shape
-    features = ['feat{}'.format(i) for i in range(1, D+1)]
-    K = hmm.states_
-    states_proba = np.zeros(shape = [N,T, K])
-    
-    for i in range(N):
-        st = None if labels_hmm is None else labels_hmm[i]
-        
-        if func != 'gamas':
-            states_proba[i] = np.exp(hmm.log_forward(X = data3d[i], states = st, label_mat = label_mat)).T
-            
-        else:
-            
-            states_proba[i] = np.exp(hmm.log_gamas(X = data3d[i])).T
-            
-    
-
-    states_proba_2d = states_proba.reshape([N*T, K])
-    data_tran_pd = pd.DataFrame( data3d.reshape([N*T,D]), columns = features )
-    
-    for k in range(K):
-        data_tran_pd[['state'+str(k)]] = pd.DataFrame(states_proba_2d[:,k], 
-                                                    index = data_tran_pd.index)
-    
-    data_tran_pd['labels'] = labels.reshape([N*T])
-    
-    if labels_hmm is not None:
-        data_tran_pd['labels_hmm'] = labels_hmm.reshape([N*T])
-        
-    else:
-        data_tran_pd['labels_hmm'] = data_tran_pd['labels']
-    
-    return data_tran_pd
-                
-def probas_hmm(data3d, dates, hmm, value = 1):
-    """
-    takes a 3d matrix and the dates
-    of the data and the calculates
-    the probabilities of the hmm
-    
-    """
-    
-    N = data3d.shape[0]
-    T = 60
-    
-    proba_mat = np.zeros(shape = [N,T])
-    
-    for i in range(N):
-        st = int(dates[i, 0])
-        end = int(dates[i, 1])
-        
-        point = data3d[i, st:end+1,:]
-        proba = np.exp(hmm.log_forward(point))[value, :]
-        proba_mat[i, st:end+1] = proba[:]
-                
-    return proba_mat
 
 
 def time_series_multiple_th(probabilities, labels, dates = None, taus = 10, lookback = 0):
@@ -415,7 +218,8 @@ def time_series_multiple_th(probabilities, labels, dates = None, taus = 10, look
     Dlists.append(dlist)
     for i in np.arange(1, len(tau_n) ):
         
-        resu, dlist = time_series_analysis(probabilities, labels, dates, tau = tau_n[i], lookback = lookback )
+        resu, dlist = time_series_analysis(probabilities, labels, 
+                                  dates, tau = tau_n[i], lookback = lookback )
         resu = resu.values
         resu0 = np.concatenate((resu0, resu), axis = 0)
         Dlists.append(dlist)
@@ -425,8 +229,11 @@ def time_series_multiple_th(probabilities, labels, dates = None, taus = 10, look
     results_pd['Auc'] = -trapz(results_pd['TPR'].values, results_pd['FPR'].values)
     
     return results_pd.round(3), Dlists
-        
-def survival_evaluation (probabilities = None, labels = None, enhanced_labels = None, dates = None, tau = 0.5, forward = 6, backward = 0):
+
+
+def survival_evaluation (probabilities = None, labels = None,
+                         enhanced_labels = None, dates = None, tau = 0.5, 
+                         forward = 6, backward = 0):
     """
     probabilities: PatientsxT pandas matrix
     labels: pandas matrix PatientsxT the corresponding labels
@@ -486,8 +293,9 @@ def survival_evaluation (probabilities = None, labels = None, enhanced_labels = 
         labels_mask = labels[mask].iloc[:, t: t+ forward +1]
         
         #compute metrics per time
-        eval_metrics, brier, D_part, D_tot = survival_evaluation_t( thresh_prob_t, probabilities_t, 
-                                                                   enhanced_labels_t, labels, time = t )
+        eval_metrics, brier, \
+        D_part, D_tot = survival_evaluation_t( thresh_prob_t, probabilities_t, 
+                                        enhanced_labels_t, labels, time = t )
         
         #add the evaluatons
         ev += eval_metrics
@@ -538,15 +346,19 @@ def survival_evaluation (probabilities = None, labels = None, enhanced_labels = 
     brier_av = np.mean(brier/dat_diff)
     
     #pack everything in a pandas matrix to return them
-    names = ['TAU','DELTA', 'BRIER','TP','FP','TN', 'FN','ACC', 'TPR', 'FPR', 'PREC', 'ACC_T', 'PREC_T', 'TPR_T','FPR_T','Tot_P']
-    results = [tau, D, brier_av, TP, FP, TN, FN, acc, tpr, fpr, prec, accuracy, precision, TPR,FPR, Pat]
+    names = ['TAU','DELTA', 'BRIER','TP','FP','TN', 'FN','ACC',
+             'TPR', 'FPR', 'PREC', 'ACC_T', 'PREC_T', 'TPR_T','FPR_T','Tot_P']
+    results = [tau, D, brier_av, TP, FP, TN, FN, acc,
+               tpr, fpr, prec, accuracy, precision, TPR,FPR, Pat]
     
     #panda matrix to be returned
-    results_pd = pd.DataFrame(data = np.array(results).reshape(1,len(results)), columns = names)
+    results_pd = pd.DataFrame(data = np.array(results).reshape(1,len(results)),
+                              columns = names)
     
     return results_pd
     
-def survival_evaluation_t(thrPr_t, proba_t, enh_lab_t, labels = None, time = -1):
+def survival_evaluation_t(thrPr_t, proba_t, enh_lab_t, labels = None, 
+                          time = -1):
     """
     
     evaluation for each time step t
@@ -689,4 +501,11 @@ def expand_references(data, forward, backward):
     print("expand references took {}s".format(end))
     return data
 
-                
+
+
+
+
+
+
+
+

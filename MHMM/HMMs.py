@@ -843,6 +843,10 @@ class HMM(object):
                 st = dates[i,0]
                 end = dates[i, 1]
                 x_i = X[i, st: end +1 ]
+                
+            if len(x_i) <= 1: #if TS have 1 or zero points pass
+                posterior[i] = 0
+                continue  
             
             #compute p_states, f start = time.time()
             #start_states = time.time()
