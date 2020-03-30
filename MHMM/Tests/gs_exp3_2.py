@@ -14,12 +14,12 @@ from _experiments import gauss_seq
 from _misc import   dont_drop
 from HMMs import MHMM
 import matplotlib.pyplot as plt
-from series_proc import relabel2
+from helper_functions.series_proc import relabel2 
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix
+#from sklearn.metrics import confusion_matrix
 import pandas as pd
-from printer import print_summaries
-from time_series_evaluations import time_series_multiple_th
+from helper_functions.printer import print_summaries
+from helper_functions.time_series_evaluations import time_series_multiple_th
 ###############################################################################
 #Part 1: 
 # %%Data Generation
@@ -30,13 +30,13 @@ np.random.seed( seed = 0)
 # a1 = [0.2, 0.6, 0.2]
 # a2 = [0, 0.2, 0.8]
 
-a0 = [0.995, 0.005, 0]
-a1 = [0.1, 0.4, 0.5]
-a2 = [0, 0.3, 0.7]
+a0 = [0.999, 0.001, 0]
+a1 = [0.1, 0.6, 0.3]
+a2 = [0, 0.4, 0.6]
 
 #Initialize Means and Standard Deviations
-mean = np.array([[-1,-1],[3,3], [4,4]])
-std = np.array([[1,1],[1,1], [1,1]])
+mean = np.array([[-2,-2], [0,0], [7,7]])
+std = np.array([[1,1], [1,1], [1,1]])
 pi = [1,0,0]
 A = np.array([a0, a1, a2])
 
@@ -61,7 +61,7 @@ save_name = None
 states_off = 0
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 500 #30
+EM_iter = 120 #30
 tol = 10**(-9)
 n_states = 3
 
@@ -71,13 +71,15 @@ A_mat = np.array([[0.6, 0.4, 0], [0.2, 0.7, 0.1],[ 0, 0.4, 0.6]])
 pi = np.array([1, 0, 0])
 #pi = None
 
+#Preprocess States drop labels
 drop_perc = 0.7
 states1 = dont_drop(values = 2, states = states.copy(), drop_perc = drop_perc)
+#states1 = states
 #states1 = None
 
-e = 10**(-7)
+e = 0 #10**(-7)
 label_mat = np.log( [[1-3*e,e,e,e], [1-3*e,e,e,e], [e,e,e, 1-3*e]] )
-#labels_mat = None
+label_mat = None
 
 inputs_class = {'n_HMMS':n_HMMS, 'n_states': n_states, 'n_Comp':n_Comp, 'EM_iter':EM_iter,
                 'tol': tol}
@@ -124,40 +126,87 @@ if label_mat is not None:
     print("With labeling matrix")
 
 print("For Training Data")
-print_summaries(data = pl, states = n_states)
+print_summaries(data = pl, states = n_states, states2d = states)
 
 print("\nFor Testing Data")
 
-print_summaries(data = pl_ts, states = n_states)
+print_summaries(data = pl_ts, states = n_states, states2d = states_ts)
 
 # %% Supervised Training
 C = 0.5
 md1 = LogisticRegression(C = C)
 md1 = md1.fit(trainf.values, pl.sum12.values)
-prob_train = md1.predict_proba(trainf.values)[:,1].reshape([N,T])
 
-md2 = LogisticRegression(C = C)
-md2 = md2.fit(trainf.values, pl.labels2.values)
+
+#0s versus 1s
+pl['new'] = 0
+pl['new'][pl.state1 >= 0.5] = 1
+
+th = [0.5, 0.5]
+ylabels_0_vs_1 = pl[(pl.state0 >= th[0]) | (pl.state1 >= th[1])].new
+
+train_0_vs_1 = trainf[(pl.state0 >= th[0]) | (pl.state1 >= th[1])].values
+
+#Baseline 0 vesrus 2
+md2 = LogisticRegression()
+md2 = md2.fit(train_0_vs_1, ylabels_0_vs_1.values)
+
+md3 = LogisticRegression(C = C)
+md3 = md3.fit(trainf.values, pl.labels2.values)
+
 
 
 
 # %%evaluation
 Nts = len(data_ts)
-    
+
+#get probabilities for hmm relabeled model 
 prob_test = md1.predict_proba(testf.values)[:,1].reshape([Nts,T])
+
+#get probabilities for the baseline 0 versus 1 hmm relabeled
 prob_test2 = md2.predict_proba(testf.values)[:,1].reshape([Nts,T])
+
+#get probabilities for baseline model 0s versus 2s
+prob_test3 = md3.predict_proba(testf.values)[:,1].reshape([Nts,T])
+
+
+
+#get optimal predictor (that knows the states)
+prob_optimal = states_ts.copy()
+np.place(prob_optimal, prob_optimal == 2, 1)
+
+#get test data 0-1s
 ytest = pl_ts.labels2.values.reshape([Nts, T])
 
-lookback = 1
-ev1, _ = time_series_multiple_th(prob_test, ytest, taus = 12, lookback = lookback)
-                                
-ev2, _ = time_series_multiple_th(prob_test2, ytest, taus = 12, lookback = lookback)
+lookback = 0
+taus = 26
+#evaluation of hmm relabeled
+ev1, _ = time_series_multiple_th(prob_test, ytest, taus = taus, lookback = lookback)
+
+#evaluation of second hmm relabeled model optimal
+ev2,_ =  time_series_multiple_th(prob_test2, ytest, taus = taus, lookback = lookback)
+  
+#evaluation of baseline                              
+ev3, _ = time_series_multiple_th(prob_test3, ytest, taus = taus, lookback = lookback)
+
+#evaluation of optimal
+ev4,_ =  time_series_multiple_th(prob_optimal, ytest, taus = taus, lookback = lookback)
 
 
-print(ev1['Auc'][0], ev2['Auc'][0])
+
+
 pd.set_option('display.max_columns', 20)
+print("\nHMM Relabeled 0s versus combination of 1s and 2s")
 display(ev1)
+
+print('\nHmm relabeled 0s versus 1s')
 display(ev2)
+
+print("\nBaseline Classifier 0s and 2s")
+display(ev3)
+
+print('\nState Predictor Classifier')
+display(ev4)
 
 
 
@@ -165,7 +214,7 @@ display(ev2)
 
 # %%Plotting
 mask = pl.labels2 == 1
-x = np.random.uniform(low = -6, high = 6, size = 100000)
+x = np.random.uniform(low = -15, high = 15, size = 100000)
 
 coef1 = md1.coef_[0]
 int1 = md1.intercept_[0]
@@ -175,6 +224,9 @@ coef2 = md2.coef_[0]
 int2 = md2.intercept_[0]
 x22 = -x*coef2[0]/coef2[1] + (-int2 )/coef2[1]
 
+coef3 = md3.coef_[0]
+int3 = md3.intercept_[0]
+x33 = -x*coef3[0]/coef3[1] + (-int3 )/coef3[1]
 
 
 data2d = data.reshape([N*T, -1])
@@ -184,10 +236,11 @@ ax.scatter(data2d[~mask][:,0], data2d[~mask][:,1], s = 0.1)
 
 ax.plot(x, x21)
 ax.plot(x, x22)
+ax.plot(x, x33)
 ax.set_xlabel('x1')
 ax.set_ylabel('x2')
-ax.legend(['Model 1', 'Baseline'])
-
+ax.legend(['Hmm 0 vs 1,2', 'Hmm 0 vs 1', 'Baseline  0 vs 2'])
+#ax.set_xlim(xmin = -10,xmax = 10)
 
 
 
@@ -196,8 +249,8 @@ ypred1 = (prob_test >= 0.5).reshape(Nts*T)
 ypred2 = (prob_test2 >= 0.5).reshape(Nts*T)
 
 from sklearn.metrics import classification_report
-print(classification_report(pl_ts.labels2.values, ypred1))
-print(classification_report(pl_ts.labels2.values, ypred2))
+print('\n', classification_report(pl_ts.labels2.values, ypred1))
+print('\n', classification_report(pl_ts.labels2.values, ypred2))
 
 
 
