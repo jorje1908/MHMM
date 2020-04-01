@@ -35,7 +35,7 @@ a1 = [0.1, 0.6, 0.3]
 a2 = [0, 0.4, 0.6]
 
 #Initialize Means and Standard Deviations
-mean = np.array([[-2,-2], [0,0], [7,7]])
+mean = np.array([[-2,-2], [0,0], [2,2]])
 std = np.array([[1,1], [1,1], [1,1]])
 pi = [1,0,0]
 A = np.array([a0, a1, a2])
@@ -77,9 +77,9 @@ states1 = dont_drop(values = 2, states = states.copy(), drop_perc = drop_perc)
 #states1 = states
 #states1 = None
 
-e = 0 #10**(-7)
+e =  10**(-7)
 label_mat = np.log( [[1-3*e,e,e,e], [1-3*e,e,e,e], [e,e,e, 1-3*e]] )
-label_mat = None
+#label_mat = None
 
 inputs_class = {'n_HMMS':n_HMMS, 'n_states': n_states, 'n_Comp':n_Comp, 'EM_iter':EM_iter,
                 'tol': tol}
@@ -114,11 +114,13 @@ pl = data2d_pd.iloc[:, sel:]
 #choose the labels for training
 pl['labels2'] = (pl.labels >= 2).astype(int)
 pl['sum12'] = ((pl.state1 + pl.state2) > threshold).astype(int)
+pl['hmm'] = (pl.labels_hmm == 2).astype(int)
 
 testf = data2d_pdts.iloc[:,0: sel]
 pl_ts =  data2d_pdts.iloc[:, sel:]
 pl_ts['labels2'] = (pl_ts.labels >= 2).astype(int)
 pl_ts['sum12'] = ((pl_ts.state1 + pl.state2) > threshold).astype(int)
+
 
 # %% Printing
 #take combinations of the labels
@@ -134,6 +136,8 @@ print_summaries(data = pl_ts, states = n_states, states2d = states_ts)
 
 # %% Supervised Training
 C = 0.5
+
+#Hmm relabed  0s vs combinations of 1s and 2s 
 md1 = LogisticRegression(C = C)
 md1 = md1.fit(trainf.values, pl.sum12.values)
 
@@ -147,13 +151,18 @@ ylabels_0_vs_1 = pl[(pl.state0 >= th[0]) | (pl.state1 >= th[1])].new
 
 train_0_vs_1 = trainf[(pl.state0 >= th[0]) | (pl.state1 >= th[1])].values
 
-#Baseline 0 vesrus 2
+#Hmm relabeld 0 vesrus 1
 md2 = LogisticRegression()
 md2 = md2.fit(train_0_vs_1, ylabels_0_vs_1.values)
 
+
+#Baseline 0s versus 2s
 md3 = LogisticRegression(C = C)
 md3 = md3.fit(trainf.values, pl.labels2.values)
 
+#Baseline 0s versus 2s where we have missing data
+md4 = LogisticRegression(C = C)
+md4 = md4.fit(trainf.values, pl.hmm.values)
 
 
 
@@ -168,6 +177,9 @@ prob_test2 = md2.predict_proba(testf.values)[:,1].reshape([Nts,T])
 
 #get probabilities for baseline model 0s versus 2s
 prob_test3 = md3.predict_proba(testf.values)[:,1].reshape([Nts,T])
+
+#get probabilities for baseline model 0s versus 2s
+prob_test4 = md4.predict_proba(testf.values)[:,1].reshape([Nts,T])
 
 
 
@@ -189,8 +201,12 @@ ev2,_ =  time_series_multiple_th(prob_test2, ytest, taus = taus, lookback = look
 #evaluation of baseline                              
 ev3, _ = time_series_multiple_th(prob_test3, ytest, taus = taus, lookback = lookback)
 
+#evaluation of 2nd bseline
+ev4, _ = time_series_multiple_th(prob_test4, ytest, taus = taus, lookback = lookback)
+
+
 #evaluation of optimal
-ev4,_ =  time_series_multiple_th(prob_optimal, ytest, taus = taus, lookback = lookback)
+ev_opt,_ =  time_series_multiple_th(prob_optimal, ytest, taus = taus, lookback = lookback)
 
 
 
@@ -205,8 +221,11 @@ display(ev2)
 print("\nBaseline Classifier 0s and 2s")
 display(ev3)
 
-print('\nState Predictor Classifier')
+print('\nSecond Baseline Missing Data')
 display(ev4)
+
+print('\nState Predictor Classifier')
+display(ev_opt)
 
 
 
@@ -228,6 +247,10 @@ coef3 = md3.coef_[0]
 int3 = md3.intercept_[0]
 x33 = -x*coef3[0]/coef3[1] + (-int3 )/coef3[1]
 
+coef4 = md4.coef_[0]
+int4 = md4.intercept_[0]
+x44 = -x*coef4[0]/coef4[1] + (-int4 )/coef4[1]
+
 
 data2d = data.reshape([N*T, -1])
 fig, ax = plt.subplots(1,1, figsize = (12,12))
@@ -237,9 +260,11 @@ ax.scatter(data2d[~mask][:,0], data2d[~mask][:,1], s = 0.1)
 ax.plot(x, x21)
 ax.plot(x, x22)
 ax.plot(x, x33)
+ax.plot(x, x44)
+
 ax.set_xlabel('x1')
 ax.set_ylabel('x2')
-ax.legend(['Hmm 0 vs 1,2', 'Hmm 0 vs 1', 'Baseline  0 vs 2'])
+ax.legend(['Hmm 0 vs 1,2', 'Hmm 0 vs 1', 'Baseline  0 vs 2', 'Baseline 0 vs 2 Missing'])
 #ax.set_xlim(xmin = -10,xmax = 10)
 
 
