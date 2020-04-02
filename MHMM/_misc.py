@@ -88,10 +88,13 @@ def make_supervised3( states_matrix, drop = 0.8, drop_value = 1):
     
 
 
-def dont_drop( values, states = None, drop_perc = 0):
+def dont_drop( values, states = None, drop_perc = 0, drop_list = None):
     """
     make -infinity all the values in the states
     except the values "values"
+    
+    values  = [0,1,2,....]
+    drop_perc = [%,%,%,...] percentage to drop form each value
     
     """    
     
@@ -100,14 +103,25 @@ def dont_drop( values, states = None, drop_perc = 0):
     st = states.reshape(N*T)
     
     if drop_perc == 0:
+        #drop everything execpt states in values
         st[ ~np.isin(st, values) ] = -np.inf
         
-    else:
+    elif drop_list is None:
+        #drop random a random percentage of all states
         
         indx = np.random.choice( np.arange(N*T), size = int(drop_perc*N*T), 
                             replace = False)
         
         st[ indx ] =   -np.inf
+    else:
+        #drop specific percentage from each state class
+        for val, drop in zip(values, drop_list):
+
+            indx_v = np.where(st == val)[0]
+            drop_ind = np.random.choice(indx_v, size = int(drop*len(indx_v)),
+                                                           replace = False)
+                                        
+            st[drop_ind] = -np.inf
     
     return st.reshape([N,T])
         
