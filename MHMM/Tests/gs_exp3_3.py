@@ -73,7 +73,7 @@ pi = np.array([1, 0, 0])
 
 #Preprocess States drop labels
 drop_perc = 0.7
-drop_list = [0.7, 0.7, 0.2]
+drop_list = [0.99, 0.99, 0.01]
 values = [0,1,2]
 states1 = dont_drop(values = values, states = states.copy(),
                     drop_perc = drop_perc, drop_list = drop_list)
@@ -145,11 +145,12 @@ md1 = LogisticRegression(C = C)
 md1 = md1.fit(trainf.values, pl.sum12.values)
 
 
-#0s versus 1s
-pl['new'] = 0
-pl['new'][pl.state1 >= 0.5] = 1
-
+#0s versus 1s drop points
 th = [0.5, 0.5]
+pl['new'] = 0
+pl['new'] = (pl.state1 >= th[1]).astype(int)
+
+
 ylabels_0_vs_1 = pl[(pl.state0 >= th[0]) | (pl.state1 >= th[1])].new
 
 train_0_vs_1 = trainf[(pl.state0 >= th[0]) | (pl.state1 >= th[1])].values
@@ -167,12 +168,26 @@ md3 = md3.fit(trainf.values, pl.labels2.values)
 md4 = LogisticRegression(C = C)
 md4 = md4.fit(trainf.values, pl.hmm.values)
 
+#hmm relabeled 0s vs combinations of 1s and 2s missing
+threshold_comb = 0.95
+pl['new2'] = 0
+pl['new2'] = ((pl.state1 + pl.state2) > threshold_comb).astype(int)
+th2 = [0.05, 0.95]
+mask = (pl.state0 >= th2[0]) | ((pl.state1 + pl.state2) >= th2[1])
+ylabels_0_vs_12_comb = pl[mask].new2
+train_0_vs_12 = trainf[mask].values
+
+md5 = LogisticRegression(C = C)
+md5 = md5.fit(train_0_vs_12, ylabels_0_vs_12_comb)
+
+
+
 
 
 # %%evaluation
 Nts = len(data_ts)
 
-#get probabilities for hmm relabeled model 
+#get probabilities for hmm relabeled model combination 1s and 2s
 prob_test = md1.predict_proba(testf.values)[:,1].reshape([Nts,T])
 
 #get probabilities for the baseline 0 versus 1 hmm relabeled
@@ -184,7 +199,8 @@ prob_test3 = md3.predict_proba(testf.values)[:,1].reshape([Nts,T])
 #get probabilities for baseline model 0s versus 2s
 prob_test4 = md4.predict_proba(testf.values)[:,1].reshape([Nts,T])
 
-
+#get probabilities for hmm relabeled model 0s versus combination 1s and 2s missing
+prob_test5 = md5.predict_proba(testf.values)[:,1].reshape([Nts,T])
 
 #get optimal predictor (that knows the states)
 prob_optimal = states_ts.copy()
@@ -208,6 +224,10 @@ ev3, _ = time_series_multiple_th(prob_test3, ytest, taus = taus, lookback = look
 ev4, _ = time_series_multiple_th(prob_test4, ytest, taus = taus, lookback = lookback)
 
 
+#evaluation of 3rd relabeled
+ev5, _ = time_series_multiple_th(prob_test5, ytest, taus = taus, lookback = lookback)
+
+
 #evaluation of optimal
 ev_opt,_ =  time_series_multiple_th(prob_optimal, ytest, taus = taus, lookback = lookback)
 
@@ -226,6 +246,9 @@ display(ev3)
 
 print('\nSecond Baseline Missing Data')
 display(ev4)
+
+print("\nHMM Relabeled 0s versus combination of 1s and 2s, missing")
+display(ev5)
 
 print('\nState Predictor Classifier')
 display(ev_opt)
@@ -254,6 +277,10 @@ coef4 = md4.coef_[0]
 int4 = md4.intercept_[0]
 x44 = -x*coef4[0]/coef4[1] + (-int4 )/coef4[1]
 
+coef5 = md5.coef_[0]
+int5 = md5.intercept_[0]
+x55 = -x*coef5[0]/coef5[1] + (-int5 )/coef5[1]
+
 
 data2d = data.reshape([N*T, -1])
 fig, ax = plt.subplots(1,1, figsize = (12,12))
@@ -264,10 +291,14 @@ ax.plot(x, x21)
 ax.plot(x, x22)
 ax.plot(x, x33)
 ax.plot(x, x44)
+ax.plot(x, x55)
+
 
 ax.set_xlabel('x1')
 ax.set_ylabel('x2')
-ax.legend(['Hmm 0 vs 1,2', 'Hmm 0 vs 1', 'Baseline  0 vs 2', 'Baseline 0 vs 2 Missing'])
+ax.legend(['Hmm 0 vs 1,2', 'Hmm 0 vs 1', 'Baseline  0 vs 2', 
+           'Baseline 0 vs 2 Missing', 'Hmm 0 vs 1,2 missing'])
+ax.set_title('gs_exp3_3')
 #ax.set_xlim(xmin = -10,xmax = 10)
 
 
