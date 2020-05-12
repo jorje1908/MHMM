@@ -80,12 +80,16 @@ class HMM(object):
         
         #setting covariance type attribute
         self.t_cov = t_cov
+        
         #Setting states attribute
         self.states_ = states
+        
         #Setting Gaussian components attribute
         self.g_components_ = g_components
+        
         #initialize Transition Matrix
         self.A = np.zeros( shape = [states, states], dtype = 'float')
+        
         #initilize initial distribution probabilities np.array pi[k] k = 1...K
         self.pi = np.zeros( shape = states, dtype = 'float')
         
@@ -1178,6 +1182,34 @@ class HMM(object):
                   'pi':pi}
         
         return params
+    
+    
+    
+    def hmm_flatten (self):
+        """
+        
+
+        Returns
+        -------
+        A flatten vector with all the parameteres
+        of the model (gaussian means, variances, weights, transition matrix
+                      initiali state distribution)
+
+        """
+        
+        alpha_fl = list(self.alpha.flatten())
+        A_fl     = list(self.A.flatten())
+        cov_fl   = list(self.cov.flatten())
+        means_fl  = list(self.means.flatten())
+        pi_fl     = list(self.pi.flatten())
+        
+        
+        #add the lists
+        agg = alpha_fl + A_fl + cov_fl + means_fl + pi_fl
+        
+        return agg
+        
+        
                 
     
          
@@ -1202,28 +1234,49 @@ class MHMM():
         
         #INITIALIZE FROM PARAMETERS
         self.gmm_init = 'Kmeans'
+        
         #setting number of states per HMM
         self.states = n_states
+        
         #setting the number of HMMS attribute
         self.n_HMMS = n_HMMS
+        
         #setting the number of components of HMM attribute
         self.n_Comp = n_Comp
+        
         #setting the covarinace type attribute
         self.t_cov = t_cov
+        
         #settint the number of EMiterations attribute
         self.Em_iter = EM_iter
+        
         #initializing n_HMMs for our mixture
         self.HMMS = []
+        
         #mixing parameters of HMMs
         self.mix = np.zeros( n_HMMS)
+        
         #initialize HMM classes
         self.HMM_init = False
+        
         #points for kmeans initialization
         self.kmean_Points = kmean_Points
+        
+        #Initialize hmms in the mixture
         self.init_HMMs()
-        #logLikelihood matrix for concergence
+        
+        #logLikelihood matrix for convergence
         self.logLikelihood = np.zeros( self.Em_iter )
+        
+        #a list with the parametres of the model flattened
+        self.flatten = []
+        
+        #norm differnece of flatten parameteres
+        self.norm2  =  []
+        
+        #set to true if the class has already been initialized
         self.initialized = False
+        
         #tolerance in likelihood
         self._tol = tol
         #kmean points
@@ -1332,12 +1385,13 @@ class MHMM():
             self.EM_init(data, mix = mix, pi = pi, A = A,  alpha = alpha,
                 means = means, cov = cov, dates = dates, states = states )
         
+        #matrix holdng the likelihood of the model 
         R = None
         sta = time.time()
         for iter1 in  np.arange( em_iter ):
             print("Iteration {} of EM".format( iter1 ))
             sta0 = time.time()
-            post_all, R = self.EM_update( data, states = states, dates = dates, 
+            post_all, R, flat = self.EM_update( data, states = states, dates = dates, 
                                       R = R , states_off = states_off, 
                                       label_mat = label_mat)
             
@@ -1346,7 +1400,7 @@ class MHMM():
                 
             
            # if self.convergenceMonitor(data, iter1) :
-            if self.convergenceMonitor(post_all, iter1):
+            if self.convergenceMonitor(post_all, flat,  iter1):
                 break
             end0 = time.time() - sta0
             print("Time for Em out: {} \n".format(end0))
@@ -1375,18 +1429,28 @@ class MHMM():
         #self.update_mix(R)
         post_all = np.full( shape = [len(X), M], fill_value = -np.inf)
         
+        #flat is a list having the parametres of all hmms flattened
+        flat = []
         for m in np.arange( M ):
            # print("Training the {}th HMM".format(m))
             hmm_m = self.HMMS[m]
             post_all[:,m]  = hmm_m.EM_iter( X, R[:, m], states = states,
                     dates = dates, states_off = states_off, label_mat = 
                     label_mat)
+            
+            #get flattened parameteres of HMM
+            flat += hmm_m.hmm_flatten()
         
         mix = np.log(self.mix)
-        R = post_all - logsumexp((post_all + mix), axis = 1)[:,None]
+        R = (post_all+ mix) - logsumexp((post_all + mix), axis = 1)[:,None]
         #print(np.sum(R[0]))
         self.update_mix(R)
-        return post_all, R #self
+        
+        #get the norm of flatten
+        flat_np = np.array(flat)
+        #flat_norm = np.linalg.norm(flat_np)
+        
+        return post_all, R, flat_np #self
         
         
         
@@ -1505,10 +1569,13 @@ class MHMM():
         
         return params_All
     
-    def convergenceMonitor(self, post_all, iteration):
+    def convergenceMonitor(self, post_all, flat, iteration):
         """
         Computes the Log Likelihood of the Data under the model
         and updates the Loglikelihood matrix
+        
+        post_all: the posterior of all data under the model
+        flat    : the flattened parameters of the model
         
         """
         break_condition = False
@@ -1518,18 +1585,31 @@ class MHMM():
         mix = np.log(self.mix)
         self.logLikelihood[i] = np.sum(logsumexp(post_all + mix, axis = 1))
 #        for n in np.arange( N ):
-#            self.logLikelihood[i] +=  self.predict_log_proba( data[n] )
+#          
+
+        self.flatten.append(flat)
+        
+        if i == 0:
+            flp = 10000.0
+            
+        else:
+            flp = np.linalg.norm(np.abs(self.flatten[i] - self.flatten[i-1]))
+            
+            
+        
         
         self.logLikelihood[i]  = self.logLikelihood[i]/N
         lgi = self.logLikelihood[i]
         
         print("Iteration: {} LogLikelihood:{:.10}".format( i, lgi ))
+        print("Iteration: {} Param Converg:{:.10}".format( i, flp ))
         
         if i > 0:
             diff = np.abs( self.logLikelihood[i] - self.logLikelihood[i-1])
+            
         else:
             diff = 1000
-            
+              
         if diff < tol:
             break_condition = True
             print("Convergence Criteria has been met")

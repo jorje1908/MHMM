@@ -20,6 +20,7 @@ from sklearn.linear_model import LogisticRegression
 import pandas as pd
 from helper_functions.printer import print_summaries
 from helper_functions.time_series_evaluations import time_series_multiple_th
+import time
 ###############################################################################
 #Part 1: 
 # %%Data Generation
@@ -44,7 +45,7 @@ A = np.array([a0, a1, a2])
 T = 300
 N = 1000
 
-#Generate Data and States
+#Generate 3d Data and 2d States Matrix
 data, states = gauss_seq(T = T, N = N, A = A, mean = mean, std = std, pi = pi)
 data_ts, states_ts = gauss_seq(T = T, N = N, A = A, mean = mean, std = std)                      
 
@@ -61,8 +62,8 @@ save_name = None
 states_off = 0
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 120 #30
-tol = 10**(-9)
+EM_iter = 420 #30
+tol = 10**(-5)
 n_states = 3
 
 A_mat = np.array([[0.6, 0.4, 0], [0.2, 0.7, 0.1],[ 0, 0.4, 0.6]])
@@ -81,7 +82,7 @@ states1 = dont_drop(values = values, states = states.copy(),
 #states1 = None
 
 e =  10**(-7)
-label_mat = np.log( [[1-3*e,e,e,e], [1-3*e,e,e,e], [e,e,e, 1-3*e]] )
+label_mat = np.log( [[1-3*e,e,e,e], [1-3*e,e,e,0], [0,e,e, 1-3*e]] )
 #label_mat = None
 
 inputs_class = {'n_HMMS':n_HMMS, 'n_states': n_states, 'n_Comp':n_Comp, 'EM_iter':EM_iter,
@@ -90,8 +91,13 @@ inputs_class = {'n_HMMS':n_HMMS, 'n_states': n_states, 'n_Comp':n_Comp, 'EM_iter
 inputs_fit =  {'data': data, 'states': states1, 'dates' : dates, 'save_name': save_name, 
                'states_off': states_off, 'label_mat':label_mat, 'A': A_mat, 'pi': pi}
 
+start = time.time()
+
 mhmm = MHMM(**inputs_class)
 mhmm = mhmm.fit(**inputs_fit)
+
+print('Took:{}s'.format(time.time() - start))
+
 
 #get the hmm
 hmm = mhmm.HMMS[0]
