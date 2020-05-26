@@ -1610,7 +1610,7 @@ class MHMM():
         else:
             diff = 1000
               
-        if diff < tol:
+        if diff < tol and flp < tol:
             break_condition = True
             print("Convergence Criteria has been met")
             
