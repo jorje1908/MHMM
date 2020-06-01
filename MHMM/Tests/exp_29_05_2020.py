@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 21 12:48:00 2020
+Created on Fri May 29 11:02:16 2020
 
 @author: george
 """
-
-
-
-
 
 import sys
 sys.path.append('../')
@@ -25,7 +21,10 @@ import pandas as pd
 from helper_functions.printer import print_summaries
 from helper_functions.time_series_evaluations import time_series_multiple_th
 from helper_functions.make_experiments import get_experiment
+from helper_functions.time_series_evaluations_new import  summary_evaluations_pd
 import time
+
+
 ###############################################################################
 #Part 1: 
 # %%Data Generation
@@ -36,9 +35,9 @@ np.random.seed( seed = 5)
 # a1 = [0.1, 0.6, 0.3]
 # a2 = [0, 0.4, 0.6]
 
-a0 = [0.999, 0.091, 0]
-a1 = [0.1, 0.6, 0.3]
-a2 = [0, 0.4, 0.6]
+a0 = [0.999, 0.001, 0]
+a1 = [0.05, 0.65, 0.3]
+a2 = [0, 0.1, 0.9]
 
 #Initialize Means and Standard Deviations
 mean = np.array([[-2,-2], [0,0], [2,2]])
@@ -67,8 +66,8 @@ save_name = None
 states_off = 0
 n_HMMS = 1
 n_Comp = 1
-EM_iter = 420 #30
-tol = 10**(-5)
+EM_iter = 600 #30
+tol = 10**(-10)
 n_states = 3
 
 A_mat = np.array([[0.6, 0.4, 0], [0.2, 0.7, 0.1],[ 0, 0.4, 0.6]])
@@ -79,14 +78,15 @@ pi = np.array([1, 0, 0])
 
 #Preprocess States drop labels
 drop_perc = 0.7
-drop_list = [0.99, 0.99, 0.01]
+#drop_list = [0.99, 0.99, 0.01]
+drop_list  = [1, 1, 0]
 values = [0,1,2]
 states1 = dont_drop(values = values, states = states.copy(),
                     drop_perc = drop_perc, drop_list = drop_list)
 #states1 = states
 #states1 = None
 
-e =  10**(-7)
+e =  10**(-7)*0
 label_mat = np.log( [[1-3*e,e,e,e], [1-3*e,e,e,0.0], [0,e,e, 1-3*e]] )
 #label_mat = None
 
@@ -147,6 +147,12 @@ print_summaries(data = ytest_pd, states = n_states, states2d = states_ts)
 # %% Supervised Training
 C = 0.5
 
+#Hmm relabeled multiclass classification
+Xmd0 = xtrain.copy()
+ymd0 = np.argmax(ytrain_pd[['state0', 'state1', 'state2']].values, axis = 1)
+md0  = LogisticRegression(C = C)
+md0  = md0.fit(Xmd0, ymd0)
+
 #Hmm relabed  0s vs combinations of 1s and 2s 
 thmd1      = [0.4, 0.4, 0.4]
 Xmd1, ymd1 = get_experiment(X = xtrain, y = ytrain_pd, option = 1)
@@ -176,7 +182,7 @@ md4        = md4.fit(Xmd4, ymd4.values)
 
 
 # 0s +1s versus 1s+2s, 
-thmd5      = [0.4, 0.4, 0.4]
+thmd5      = [0.2, 0.2, 0.2]
 Xmd5, ymd5 = get_experiment(X = xtrain, y = ytrain_pd, option = 5)
 md5        = LogisticRegression(C = C)
 md5        = md5.fit(Xmd5, ymd5.values)
@@ -208,6 +214,10 @@ md7 = md7.fit(Xb2, yb2)
 # %%get test probabilities
 Nts = len(data_ts)
 
+#multi class classification
+prob_test0 =  np.sum(md1.predict_proba(xtest)[:,1:], 
+                     axis = 1).reshape([Nts,T])
+
 #Hmm relabed  0s vs combinations of 1s and 2s 
 prob_test1 = md1.predict_proba(xtest)[:,1].reshape([Nts,T])
 
@@ -236,43 +246,68 @@ prob_optimal = states_ts.copy()
 np.place(prob_optimal, prob_optimal == 2, 1)
 
 
-# &&evaluation
+# %%evaluation
 #get test data 0-1s
+
+forward_horizon = 50
+backward_horizon = 0
+lookback = 2
+taus = 10
+tau_list = [x for x in np.arange(0, 1, 0.05)]
+
+kwargs = {'forward_horizon': forward_horizon, 
+          'backward_horizon': backward_horizon, 
+          'tau_list': tau_list
+          }
 ytest = (ytest_pd.labels.values>=2).astype(int).reshape([Nts, T])
 
-lookback = 0
-taus = 12
 
+ev0  =   summary_evaluations_pd(probabilities = prob_test0, labels =  ytest, 
+                              **kwargs)
 #evaluation of hmm relabeled
-ev1, _ = time_series_multiple_th(prob_test1, ytest, taus = taus, lookback = lookback)
+ev1, mets_pd  = summary_evaluations_pd(probabilities = prob_test1, labels =  ytest, 
+                              **kwargs, ts_metrics = True)
 
 #evaluation of second hmm relabeled model optimal
-ev2, _ =  time_series_multiple_th(prob_test2, ytest, taus = taus, lookback = lookback)
+ev2  =  summary_evaluations_pd(probabilities = prob_test2, labels =  ytest,
+                               **kwargs)
    
 #evaluation of baseline                              
-ev3, _ = time_series_multiple_th(prob_test3, ytest, taus = taus, lookback = lookback)
+ev3  = summary_evaluations_pd(probabilities = prob_test3, labels =  ytest, 
+                              **kwargs)
 
 #evaluation of 2nd bseline
-ev4, _ = time_series_multiple_th(prob_test4, ytest, taus = taus, lookback = lookback)
+ev4  = summary_evaluations_pd(probabilities = prob_test4, labels =  ytest,
+                             **kwargs)
 
 #evaluation of 3rd relabeled
-ev5, _ = time_series_multiple_th(prob_test5, ytest, taus = taus, lookback = lookback)
+ev5  = summary_evaluations_pd(probabilities = prob_test5, labels =  ytest,
+                              **kwargs)
 
 #
-ev6, _ = time_series_multiple_th(prob_test6, ytest, taus = taus, lookback = lookback)
+ev6  = summary_evaluations_pd(probabilities = prob_test6, labels =  ytest, 
+                              **kwargs)
 
 #
-ev7, _ = time_series_multiple_th(prob_test7, ytest, taus = taus, lookback = lookback)
+ev7  = summary_evaluations_pd(probabilities = prob_test7, labels =  ytest,
+                             **kwargs)
 
 
+ev_opt,_ =  time_series_multiple_th(prob_optimal, ytest,
+                                    taus = taus, lookback = lookback)
 
+
+# %% display evaluations
 #evaluation of optimal
-ev_opt,_ =  time_series_multiple_th(prob_optimal, ytest, taus = taus, lookback = lookback)
 
 
 
 
-pd.set_option('display.max_columns', 20)
+pd.set_option('display.max_columns', 40)
+
+print("\nHMM 0s versus 1s plus 2s all")
+display(ev0)
+
 print("\nHMM Relabeled 0s versus combination of 1s and 2s")
 display(ev1)
 
@@ -371,13 +406,13 @@ ax.plot(states_pos2[k])
 ax.plot(prob_mul2dpos[k])
 
 
+# %% evaluations
+import pickle
+local_vars = dict(locals())
 
 
+evaluations_ts = [local_vars['ev'+str(i)] for i in range(8)]
 
-
-
-
-
-
+pickle.dump(evaluations_ts, open('early_prediction_results/evals.p', 'wb'))
 
 

@@ -84,7 +84,7 @@ def treatment_cost_ts(J = 100, c = 10, H = 3, start = -1, end = -1,
     
     pt: print time default False
     """
-    s_time = time.time()
+   
     
     #if start and end not provided 
     #take the whole time series
@@ -256,7 +256,8 @@ def aggregate_evaluations_pd(predictions = np.array([[]]), labels = np.array([[]
 
 def summary_evaluations_pd(probabilities = np.array([[]]), labels = np.array([[]]), 
                          forward_horizon = 3, backward_horizon = 0, 
-                         dates = np.array([[]]), tau_n = 3, tau_list = None):
+                         dates = np.array([[]]), tau_n = 3, tau_list = None,
+                         ts_metrics = False):
     
     """
     Wrapper Function that Aggregates Statistics for all Time Series
@@ -290,6 +291,9 @@ def summary_evaluations_pd(probabilities = np.array([[]]), labels = np.array([[]
         else:
             res = process_evaluations_pd(mets_pd, tau)
             results = pd.concat([results, res], axis = 0, ignore_index=True)
+            
+    if ts_metrics:
+        return results, mets_pd
                                         
     return results
         
@@ -317,7 +321,7 @@ def process_evaluations_pd(metrics_pd, tau):
     
     N = len(agg)
     ts_accuracy = (agg_mets['tp'] + agg_mets['tn'])/(agg_mets['tp'] + 
-                                                     agg_mets['fn']+agg_mets['tp'] 
+                                                     agg_mets['fn']+agg_mets['tn'] 
                                                      + agg_mets['fp'])
     try:
         ts_recall =  agg_mets['tp'] /(agg_mets['tp'] + agg_mets['fn'])
@@ -325,7 +329,11 @@ def process_evaluations_pd(metrics_pd, tau):
         ts_recall = 0
         print("Division By 0 will set to 0")
 
-        
+    try:
+        ts_fpr    = agg_mets['fp'] /(agg_mets['fp'] + agg_mets['tn'])
+    except:
+        ts_fpr = 0
+    
     try:
         ts_precision =  agg_mets['tp'] /(agg_mets['tp'] + agg_mets['fp'])
     except:
@@ -350,7 +358,7 @@ def process_evaluations_pd(metrics_pd, tau):
     fn  = pos - tp
     
     avg_mets['delta'] = (avg_mets['delta']*N)/pos
-    avg_mets['tp'] = (avg_mets['tp']*N)/pos
+   
 
     agg_accuracy = (tp+tn)/(tn+tp+fn+fp)
     
@@ -376,7 +384,7 @@ def process_evaluations_pd(metrics_pd, tau):
     
     columns = ['tau','ts_length', 'fw', 'bw', 'tp/ts', 
              'tn/ts','fp/ts', 'fn/ts','avg_delta', 't_accuracy', 
-              't_precision', 't_recall', 'tp','tn', 'fp', 'fn',
+              't_precision', 't_recall', 't_fpr', 'tp','tn', 'fp', 'fn',
               'agg_accuracy', 'agg_precision', 'agg_recall','fpr','pos','neg', 'total_ts']
     
     mets = np.zeros([1, len(columns)])
@@ -387,11 +395,12 @@ def process_evaluations_pd(metrics_pd, tau):
     mets[0, 9] = ts_accuracy
     mets[0,10] = ts_precision
     mets[0,11] = ts_recall
-    mets[0, 12: 16] = np.array([tp, tn, fp, fn]).astype(int)
-    mets[0, 16: 20] = [agg_accuracy, agg_precision, agg_recall, fpr ]
-    mets[0, 20:23] = [int(pos), int(neg), int(N)]
+    mets[0,12] = ts_fpr
+    mets[0, 13: 17] = np.array([tp, tn, fp, fn]).astype(int)
+    mets[0, 17: 21] = [agg_accuracy, agg_precision, agg_recall, fpr ]
+    mets[0, 21:24] = [int(pos), int(neg), int(N)]
     
-    mets_pd = pd.DataFrame(mets, columns = columns).round(2)
+    mets_pd = pd.DataFrame(mets, columns = columns).round(4)
     
     
     return mets_pd

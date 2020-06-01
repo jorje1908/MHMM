@@ -28,8 +28,9 @@ X, y = make_classification(**inputs)
 plt.figure()
 X0 = X.copy()
 N0 = len(X0)
-C = 1
+C = 10**(-5)
 C0 = C/N0
+C0 = C
 lg0 = LogisticRegression(penalty = 'l2', tol = 10**(-17), C = C0, random_state = 5252)
 lg0.fit(X0,y)
 print('LG0')
@@ -51,8 +52,8 @@ plt.show()
 
 X1 = X.copy()
 N1 = len(X1)
-C1 =C*N1
-
+C1 =C/N1
+C1 = C
 lg1 = LogisticRegression(penalty = 'l2', tol = 10**(-17), C = C1, random_state = 5252)
 X1[:,0] = X1[:,0]*1000 + 2000
 lg1.fit(X1,y)
@@ -83,8 +84,8 @@ X2 = np.concatenate([X2,X2,X2,X2,X2,X2,X2,X2,X2,X2], axis = 0)
 y2 = np.concatenate([y,y,y,y,y,y,y,y,y,y])
 
 N2 = len(X2)
-C2 =C*N2
-
+C2 =C/N2
+C2 = C
 lg2 = LogisticRegression(penalty = 'l2', tol = 10**(-17), C = C2, random_state = 5252)
 X2[:,0] = X2[:,0]*1000 + 2000
 lg2.fit(X2,y2)

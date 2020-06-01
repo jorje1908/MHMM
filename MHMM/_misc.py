@@ -88,7 +88,7 @@ def make_supervised3( states_matrix, drop = 0.8, drop_value = 1):
     
 
 
-def dont_drop( values, states = None, drop_perc = 0, drop_list = None):
+def dont_drop( values, states = None, drop_perc = 0.2, drop_list = None):
     """
     make -infinity all the values in the states
     except the values "values"
@@ -102,7 +102,8 @@ def dont_drop( values, states = None, drop_perc = 0, drop_list = None):
     
     st = states.reshape(N*T)
     
-    if drop_perc == 0:
+    if drop_perc == -1:
+        print('drop_perc is setted to -1 it will drop all the values not on the values list')
         #drop everything execpt states in values
         st[ ~np.isin(st, values) ] = -np.inf
         
