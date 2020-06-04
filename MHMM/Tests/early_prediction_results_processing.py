@@ -13,7 +13,7 @@ import pickle
 import matplotlib as mpl
 
 def make_figures(X, Y, axis_names, fmts, labels, 
-                 savename = None, style = 'seaborn-paper'):
+                 savename = None, style = 'seaborn-paper', fontsize = 20):
     
     """
     X: list with X axis of figures
@@ -34,9 +34,10 @@ def make_figures(X, Y, axis_names, fmts, labels,
         ax.plot(x, y, fm, label = lab)
         
     
-    ax.set_xlabel( axis_names[0] )
-    ax.set_ylabel( axis_names[1] )
-    ax.legend()
+    ax.set_xlabel( axis_names[0], fontsize = fontsize )
+    ax.set_ylabel( axis_names[1], fontsize = fontsize )
+    ax.legend(prop={'size': fontsize})
+    ax.tick_params(axis = 'both', labelsize = fontsize-2)
     plt.show()  
     
     if savename:
@@ -44,19 +45,22 @@ def make_figures(X, Y, axis_names, fmts, labels,
     
     return ax
 
-
 # %% start evaluations
 evs = pickle.load(open('early_prediction_results/evals.p', 'rb'))
-model     = evs[0]
-baseline  = evs[6]
+model     = evs[0].iloc[2:]
+baseline  = evs[6].iloc[2:]
+
+model1     = evs[0]
+baseline1  = evs[6]
 
 cols = evs[0].columns
 
 
 # %% plots test
-axis_names = [r'$\tau$', 'Tp/Ts']
+axis_names = [r'Threshold($\tau$)', 'True Positives per Hour']
 
-labels = ['with Relabelling', 'without Relabelling']
+
+labels = ['Relabeling', 'No Relabeling']
 fmts   = ['d-k', 'o--k']
 name   = 'tables/tp_synthetic'
 X      = [baseline.tau, baseline.tau]
@@ -65,9 +69,10 @@ ax     = make_figures(X,Y, axis_names, fmts, labels, savename = name)
 
 # %% plots2
 
-axis_names = [r'$\tau$', 'Fp/Ts']
+axis_names = [r'Threshold($\tau$)', 'False Positives per hour']
 
-labels = ['with Relabelling', 'without Relabelling']
+
+labels = ['Relabeling', 'No Relabeling']
 fmts   = ['d-k', 'o--k']
 name   = 'tables/fp_synthetic'
 X      = [baseline.tau, baseline.tau]
@@ -77,9 +82,9 @@ ax     = make_figures(X,Y, axis_names, fmts, labels, savename = name)
 
 # %% plots3
 
-axis_names = [r'$\tau$', r'$\mathcal{D}$(ts)']
+axis_names = [r'Threshold($\tau$)', r'Average Delta']
 
-labels = ['with Relabelling', 'without Relabelling']
+labels = ['Relabeling', 'No Relabeling']
 fmts   = ['d-k', 'o--k']
 name   = 'tables/delta_synthetic'
 X      = [baseline.tau, baseline.tau]
@@ -88,13 +93,13 @@ ax     = make_figures(X,Y, axis_names, fmts, labels, savename = name)
 
 # %% plots4
 
-axis_names = ['Fpr', 'Tpr']
+axis_names = ['False Positive Rate', 'True Positive rate']
 
-labels = ['with Relabelling', 'without Relabelling']
+labels = ['Relabeling', 'No Relabeling']
 fmts   = ['d-k', 'o--k']
 name   = 'tables/roc_synthetic'
-X      = [model.t_fpr, baseline.t_fpr]
-Y      = [model.t_recall, baseline.t_recall]
+X      = [model1.t_fpr, baseline1.t_fpr]
+Y      = [model1.t_recall, baseline1.t_recall]
 ax     = make_figures(X,Y, axis_names, fmts, labels, savename = name)
 # %%precision recall curves
 fig, ax = plt.subplots(1,1)
