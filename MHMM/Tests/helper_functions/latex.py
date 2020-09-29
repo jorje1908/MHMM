@@ -76,7 +76,8 @@ def latex_table(filename = None, n_cols = -1, caption = None, titles = [], row_n
     
     
 def make_figures(X, Y, axis_names, fmts, labels, 
-                 savename = None, style = 'seaborn-paper', fontsize = 20):
+                 savename = None, style = 'seaborn-paper', 
+                 linewidth = 4, fontsize = 34, text = None, loc = 'best'):
     
     """
     X: list with X axis of figures
@@ -99,8 +100,16 @@ def make_figures(X, Y, axis_names, fmts, labels,
     
     ax.set_xlabel( axis_names[0], fontsize = fontsize )
     ax.set_ylabel( axis_names[1], fontsize = fontsize )
-    ax.legend(prop={'size': fontsize})
+    ax.legend(prop={'size': fontsize-9}, frameon = False, loc = loc)
     ax.tick_params(axis = 'both', labelsize = fontsize-2)
+    
+    if text is not None:
+        pos1 = 0.8
+        pos2 = 0.5
+        for tx in text:
+            ax.text(pos1, pos2, tx, fontsize = fontsize-5)
+            pos2-=0.2
+    
     plt.show()  
     
     if savename:
