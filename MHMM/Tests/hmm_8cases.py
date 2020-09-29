@@ -40,7 +40,7 @@ a2 = [0.3, 0.2, 0.5]
 #Initialize Means and Standard Deviations
 mean = np.array([[-0.5, -0.5], [0, 0], [0.5, 0.5]])
 std = np.array([[1,1], [1,1], [1,1]])
-pi = [0.6,0.2,0.2]
+pi2 = [0.6,0.2,0.2]
 A = np.array([a0, a1, a2])
 
 #Initialize Time T and Number of Time Series N
@@ -48,7 +48,7 @@ T = 300
 N = 1000
 
 #Generate 3d Data and 2d States Matrix
-data, states = gauss_seq(T = T, N = N, A = A, mean = mean, std = std, pi = pi)
+data, states = gauss_seq(T = T, N = N, A = A, mean = mean, std = std, pi = pi2)
 states_fl    = states.flatten()
 zeros        = np.sum(states_fl == 0)/(N*T)
 ones         = np.sum(states_fl == 1)/(N*T)
@@ -70,8 +70,8 @@ A_mat = np.array([[0.6, 0.3, 0.1], [0.2, 0.7, 0.1],[ 0.2, 0.4, 0.2]])
 pi = np.array([0.4, 0.4, 0.2])
 #A_mat = None
 
-A_fl    = A_mat.flatten()
-pi_fl   = pi.flatten()
+A_fl    = A.flatten()
+pi_fl   = np.array(pi2).flatten()
 mean_fl = mean.flatten()
 ss      = np.array([[1,0], [0,1]])
 std_fl  = list(ss.flatten())
@@ -110,12 +110,12 @@ print('Took:{}s'.format(time.time() - start))
 # %% Case 1  Errors
 #get the hmm
 indx = [0,2,1]
-hmm_uns = mhmm1.HMMS[0]
-hmm_par1 = hmm_uns.get_params()
-A_1 = hmm_uns.A[indx,:][:,indx].flatten()
-means_1 = hmm_uns.means[indx].flatten()
-cov_1 = hmm_uns.cov[indx].flatten()
-pi_1 = hmm_uns.pi[indx].flatten()
+hmm_1 = mhmm1.HMMS[0]
+hmm_par1 = hmm_1.get_params()
+A_1 = hmm_1.A[indx,:][:,indx].flatten()
+means_1 = hmm_1.means[indx].flatten()
+cov_1 = hmm_1.cov[indx].flatten()
+pi_1 = hmm_1.pi[indx].flatten()
 
 
 A_err1 = np.sum(np.abs(A_1-A_fl))
@@ -129,7 +129,7 @@ errors.append([A_err1, means_err1, cov_err1, pi_err1])
 
 # %%Case 2 fully Supervised
 
-states2 = states
+states2 = states.copy()
 
 e =  10**(-7)
 #label_mat = np.log( [[1-3*e,e,e,e], [1-3*e,e,e,0.0], [0,e,e, 1-3*e]] )
@@ -323,7 +323,7 @@ mhmm6 = mhmm6.fit(**inputs_fit)
 
 print('Took:{}s'.format(time.time() - start))
 
-# %% Case 5 Errors
+# %% Case 6 Errors
 #get the hmm
 hmm_6 = mhmm6.HMMS[0]
 hmm_p6 = hmm_6.get_params()

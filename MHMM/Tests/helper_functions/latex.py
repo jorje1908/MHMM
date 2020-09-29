@@ -5,6 +5,12 @@ Created on Thu May 28 22:06:19 2020
 
 @author: george
 """
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import pickle
+import matplotlib as mpl
+
 
 def latex_table(filename = None, n_cols = -1, caption = None, titles = [], row_names = [],
      row_values = [], math = True, label = None):
@@ -65,3 +71,39 @@ def latex_table(filename = None, n_cols = -1, caption = None, titles = [], row_n
     f.writelines(lines)
     print('table saved succesfully')
     f.close()
+    
+    
+    
+    
+def make_figures(X, Y, axis_names, fmts, labels, 
+                 savename = None, style = 'seaborn-paper', fontsize = 20):
+    
+    """
+    X: list with X axis of figures
+    Y: list of Y axis of figures
+    x_axis: name of x_axis
+    y_axis: name of y_axis
+    fmt: list of fromat strings for plots
+    label: list of names for plots
+    savename: name to save the plot
+    
+    """
+    mpl.style.use(style)
+    plt.rc('text', usetex = True)
+    
+    fig, ax = plt.subplots(1,1)
+    
+    for x,y, fm, lab in zip(X,Y, fmts, labels):
+        ax.plot(x, y, fm, label = lab)
+        
+    
+    ax.set_xlabel( axis_names[0], fontsize = fontsize )
+    ax.set_ylabel( axis_names[1], fontsize = fontsize )
+    ax.legend(prop={'size': fontsize})
+    ax.tick_params(axis = 'both', labelsize = fontsize-2)
+    plt.show()  
+    
+    if savename:
+        fig.savefig(fname= savename +'.pdf', bbox_inches = 'tight')
+    
+    return ax

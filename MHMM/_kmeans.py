@@ -127,7 +127,7 @@ def kmeanspp(data, means, steady_means):
         #Now final _term has the squared distances  of all the points 
         #from the first j means
         
-        min_mat = np.min(final_term, axis = 1)
+        min_mat = np.min(final_term, axis = 1)+10**(-6)
         
         min_norm = min_mat/(np.sum(min_mat))
         

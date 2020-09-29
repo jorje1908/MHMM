@@ -359,7 +359,10 @@ def process_evaluations_pd(metrics_pd, tau):
     
     avg_mets['delta'] = (avg_mets['delta']*N)/pos
     avg_mets['tp'] = (avg_mets['tp']*N)/pos
+<<<<<<< HEAD
    
+=======
+>>>>>>> d03897bd37c79e3e2c86a2eeb1f21c8ad74b953e
 
     agg_accuracy = (tp+tn)/(tn+tp+fn+fp)
     
