@@ -1,7 +1,0 @@
-\begin{table}[!htb]
-\centering 
-\caption{blablablablbalba}
-\begin{tabular}[l c c c c c  ]
-\toprule 
-\end{tabular}
-\end{table}
